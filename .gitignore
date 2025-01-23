@@ -56,11 +56,7 @@
 *.swp
 *.swo
 
-.env
-.env.dev
 .env.local
-.env.prod
-.env.test
 .env.dev.local
 
 ###> symfony/framework-bundle ###
