@@ -42,6 +42,8 @@ test: ## Start tests with phpunit, pass the parameter "c=" to add options to php
 	@$(eval c ?=)
 	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
 
+permissions: ## Fix permissions
+	sudo chmod -R 777 ./
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
@@ -59,3 +61,32 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+entity: ## Generate a new entity
+	@$(SYMFONY) make:entity
+
+controller: ## Generate a new controller
+	@$(SYMFONY) make:controller
+
+## —— Doctrine 🏰 ——————————————————————————————————————————————————————————————
+db: ## List all Doctrine commands or pass the parameter "c=" to run a given command, example: make db c='doctrine:database:create'
+	@$(eval c ?=)
+	@$(SYMFONY) doctrine:$(c)
+
+migration: ## Create a new migration
+	@$(SYMFONY) make:migration
+
+migrate: ## Migrate the database
+	@$(SYMFONY) doctrine:migrations:migrate
+
+load-db: ## Load the database with fixtures
+	@$(SYMFONY) doctrine:database:create --if-not-exists
+	@$(SYMFONY) doctrine:migrations:migrate -n
+
+load-fixtures: ## Load the database with fixtures
+	@$(SYMFONY) doctrine:fixtures:load --no-interaction
+
+drop-db: ## Drop the database
+	@$(SYMFONY) doctrine:database:drop --force
+
+reset-db: drop-db load-db load-fixtures ## Drop the database, load migrations and load fixtures
