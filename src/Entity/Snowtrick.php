@@ -37,6 +37,15 @@ class Snowtrick
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick')]
     private Collection $comments;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $video = null;
+
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'snowtrick')]
+    private Collection $images;
+
 	public function __toString(): string
 	{
 		return $this->name;
@@ -46,6 +55,7 @@ class Snowtrick
     {
         $this->comments = new ArrayCollection();
 		$this->createdAt = new \DateTimeImmutable();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -137,6 +147,48 @@ class Snowtrick
             // set the owning side to null (unless already changed)
             if ($comment->getSnowtrick() === $this) {
                 $comment->setSnowtrick(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getVideo(): ?string
+    {
+        return $this->video;
+    }
+
+    public function setVideo(?string $video): static
+    {
+        $this->video = $video;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setSnowtrick($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getSnowtrick() === $this) {
+                $image->setSnowtrick(null);
             }
         }
 
