@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light px-3 d-none d-md-flex">
+	<div class="container-fluid">
+		<!-- Logo -->
+		<a class="navbar-brand" href="{{ path('app_home') }}">
+			<img src="{{ asset('images/logo.png') }}" alt="Logo" height="40">
+		</a>
+
+		<!-- Liens de navigation -->
+		<div class="d-flex align-items-center">
+			<a href="{{ path('app_home') }}" class="nav-link">Home</a>
+			<span class="mx-2">|</span>
+			<a href="{{ path('app_home') }}" class="nav-link">Tricks</a>
+			{% if app.user %}
+				<span class="mx-2">|</span>
+				<a href="{{ path('app_logout') }}" class="nav-link">Logout</a>
+			{% else %}
+				<span class="mx-2">|</span>
+				<a href="" class="nav-link">Sign up</a>
+				<span class="mx-2">|</span>
+				<a href="" class="nav-link">Sign in</a>
+			{% endif %}
+		</div>
+	</div>
+</nav>

@@ -1,0 +1,26 @@
+<nav class="navbar fixed-bottom navbar-light bg-light d-block d-md-none py-3 mt-auto">
+	<div class="container-fluid">
+		<div class="d-flex justify-content-center w-100">
+			<!-- Bouton Accueil -->
+			<a href="{{ path('app_home') }}" class="btn btn-lg btn-outline-primary mx-1">
+				<i class="fas fa-home"></i>
+			</a>
+
+			<!-- Bouton Bookmark -->
+			<button class="btn btn-lg btn-outline-success mx-1">
+				<i class="fas fa-bookmark"></i>
+			</button>
+
+			<!-- Bouton Login/Logout -->
+			{% if app.user %}
+				<a href="{{ path('app_logout') }}" class="btn btn-lg btn-outline-danger mx-1">
+					<i class="fas fa-sign-out-alt"></i>
+				</a>
+			{% else %}
+				<a href="" class="btn btn-lg btn-outline-primary mx-1">
+					<i class="fas fa-sign-in-alt"></i>
+				</a>
+			{% endif %}
+		</div>
+	</div>
+</nav>
