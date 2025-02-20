@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\SnowtrickRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -9,10 +10,20 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(
+		SnowtrickRepository $snowtrickRepository
+    ): Response
     {
 		$this->addFlash('success', 'Bienvenue sur SnowTricks !');
 
-        return $this->render('home/index.html.twig');
+		$maxNbTricks = 15;
+		$tricks = $snowtrickRepository->findBy([], ['createdAt' => 'DESC'], $maxNbTricks);
+		$nbTricks = $snowtrickRepository->count([]);
+
+        return $this->render('home/index.html.twig', [
+			'tricks' => $tricks,
+			'nbTricks' => $nbTricks,
+	        'bannerImgLink' => 'https://images4.alphacoders.com/598/598152.jpg',
+        ]);
     }
 }

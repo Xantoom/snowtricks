@@ -52,7 +52,8 @@ class AppFixtures extends Fixture
 		$manager->persist($admin);
 		$this->users[] = $admin;
 
-		for ($i = 0; $i < 10; $i++) {
+		$nbUsers = 10;
+		for ($i = 0; $i < $nbUsers; $i++) {
 			$user = new User();
 			$user
 				->setEmail($this->faker->email)
@@ -69,7 +70,8 @@ class AppFixtures extends Fixture
 
 	private function createSnowtricks(ObjectManager $manager): void
 	{
-		for ($i = 0; $i < 10; $i++) {
+		$nbTricks = 50;
+		for ($i = 0; $i < $nbTricks; $i++) {
 			$snowtrick = new Snowtrick();
 			$snowtrick
 				->setCreatedAt(new \DateTimeImmutable('-1 year'))
@@ -87,7 +89,8 @@ class AppFixtures extends Fixture
 
 	private function createComments(ObjectManager $manager): void
 	{
-		for ($i = 0; $i < 10; $i++) {
+		$nbComments = 100;
+		for ($i = 0; $i < $nbComments; $i++) {
 			$comment = new Comment();
 			$comment
 				->setCreatedAt(new \DateTimeImmutable('-1 year'))

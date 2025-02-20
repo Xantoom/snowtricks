@@ -16,6 +16,10 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+	'load-more' => [
+		'path' => './assets/js/load-more.js',
+		'entrypoint' => true,
+	],
     'bootstrap' => [
         'version' => '5.3.3',
     ],

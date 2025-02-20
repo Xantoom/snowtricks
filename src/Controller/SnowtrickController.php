@@ -73,4 +73,32 @@ class SnowtrickController extends AbstractController
 
 		return new JsonResponse(null, Response::HTTP_OK);
 	}
+
+	#[Route('/load-more/{page}', name: 'load_more', methods: ['GET'])]
+	public function loadMore(int $page): JsonResponse
+	{
+		$tricksPerPage = 15;
+		$tricks = $this->snowtrickRepository->findBy(
+			[],
+			['createdAt' => 'DESC'],
+			$tricksPerPage,
+			$page * $tricksPerPage
+		);
+		$totalNbTricks = $this->snowtrickRepository->count([]);
+
+		$data = [];
+		foreach ($tricks as $trick) {
+			$data['tricks'][] = [
+				'id' => $trick->getId(),
+				'name' => $trick->getName(),
+			];
+		}
+		$data['isThereAnyTricksLeftToDisplay'] = $totalNbTricks > ($page + 1) * $tricksPerPage;
+		$data['isCurrentUserLoggedIn'] = $this->getUser() !== null;
+
+		return new JsonResponse([
+			'success' => true,
+			'data' => $data,
+		], Response::HTTP_OK);
+	}
 }
