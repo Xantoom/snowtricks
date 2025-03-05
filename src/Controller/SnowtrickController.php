@@ -82,7 +82,7 @@ class SnowtrickController extends AbstractController
 			[],
 			['createdAt' => 'DESC'],
 			$tricksPerPage,
-			$page * $tricksPerPage
+			($page - 1) * $tricksPerPage
 		);
 		$totalNbTricks = $this->snowtrickRepository->count([]);
 
@@ -93,7 +93,7 @@ class SnowtrickController extends AbstractController
 				'name' => $trick->getName(),
 			];
 		}
-		$data['isThereAnyTricksLeftToDisplay'] = $totalNbTricks > ($page + 1) * $tricksPerPage;
+		$data['isThereAnyTricksLeftToDisplay'] = $totalNbTricks / $tricksPerPage > $page;
 		$data['isCurrentUserLoggedIn'] = $this->getUser() !== null;
 
 		return new JsonResponse([

@@ -14,7 +14,6 @@ const handleEvent = (btn) => {
 		const page = btn.dataset.page;
 		if (!page) return;
 		const res = await fetchTricks(page);
-		console.log(res);
 		if (!res.success) return;
 
 		const tricks = res.data.tricks;
@@ -60,7 +59,8 @@ const handleEvent = (btn) => {
 			return;
 		}
 
-		btn.setAttribute('data-page', page + 1);
+		const pageInt = parseInt(page);
+		btn.setAttribute('data-page', pageInt + 1);
 		handleEvent(btn);
 	};
 };
