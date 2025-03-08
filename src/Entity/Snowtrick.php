@@ -37,14 +37,11 @@ class Snowtrick
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick')]
     private Collection $comments;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $video = null;
-
     /**
-     * @var Collection<int, Image>
+     * @var Collection<int, File>
      */
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'snowtrick')]
-    private Collection $images;
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick')]
+    private Collection $files;
 
 	public function __toString(): string
 	{
@@ -55,7 +52,7 @@ class Snowtrick
     {
         $this->comments = new ArrayCollection();
 		$this->createdAt = new \DateTimeImmutable();
-        $this->images = new ArrayCollection();
+        $this->files = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,42 +150,30 @@ class Snowtrick
         return $this;
     }
 
-    public function getVideo(): ?string
-    {
-        return $this->video;
-    }
-
-    public function setVideo(?string $video): static
-    {
-        $this->video = $video;
-
-        return $this;
-    }
-
     /**
-     * @return Collection<int, Image>
+     * @return Collection<int, File>
      */
-    public function getImages(): Collection
+    public function getFiles(): Collection
     {
-        return $this->images;
+        return $this->files;
     }
 
-    public function addImage(Image $image): static
+    public function addFile(File $file): static
     {
-        if (!$this->images->contains($image)) {
-            $this->images->add($image);
-            $image->setSnowtrick($this);
+        if (!$this->files->contains($file)) {
+            $this->files->add($file);
+            $file->setSnowtrick($this);
         }
 
         return $this;
     }
 
-    public function removeImage(Image $image): static
+    public function removeFile(File $file): static
     {
-        if ($this->images->removeElement($image)) {
+        if ($this->files->removeElement($file)) {
             // set the owning side to null (unless already changed)
-            if ($image->getSnowtrick() === $this) {
-                $image->setSnowtrick(null);
+            if ($file->getSnowtrick() === $this) {
+                $file->setSnowtrick(null);
             }
         }
 
