@@ -9,6 +9,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
@@ -16,6 +17,11 @@ class AppFixtures extends Fixture
 
 	private array $users = [];
 	private array $snowtricks = [];
+
+    public function __construct(
+        private readonly UserPasswordHasherInterface $passwordHasher,
+    ) {
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -30,13 +36,16 @@ class AppFixtures extends Fixture
 
 	private function createUsers(ObjectManager $manager): void
 	{
+        $password = 'password';
+
 		$user = new User();
 		$user
 			->setEmail('user@test.fr')
 			->setFirstname('User')
 			->setLastname('User')
-			->setPassword('password')
+			->setPassword($this->passwordHasher->hashPassword($user, $password))
 			->setRoles(['ROLE_USER'])
+            ->setIsVerified(true)
 		;
 		$manager->persist($user);
 		$this->users[] = $user;
@@ -46,8 +55,9 @@ class AppFixtures extends Fixture
 			->setEmail('admin@test.fr')
 			->setFirstname('Admin')
 			->setLastname('Admin')
-			->setPassword('password')
+			->setPassword($this->passwordHasher->hashPassword($user, $password))
 			->setRoles(['ROLE_ADMIN'])
+            ->setIsVerified(true)
 		;
 		$manager->persist($admin);
 		$this->users[] = $admin;
@@ -59,8 +69,9 @@ class AppFixtures extends Fixture
 				->setEmail($this->faker->email)
 				->setFirstname($this->faker->firstName)
 				->setLastname($this->faker->lastName)
-				->setPassword('password')
+				->setPassword($this->passwordHasher->hashPassword($user, $password))
 				->setRoles(['ROLE_USER'])
+                ->setIsVerified($this->faker->boolean(80))
 			;
 			$manager->persist($user);
 			$this->users[] = $user;
