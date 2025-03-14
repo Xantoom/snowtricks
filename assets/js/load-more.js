@@ -28,29 +28,29 @@ const handleEvent = (btn) => {
 		let html = '';
 		tricks.forEach((trick) => {
 			html += `
-			<div class="col">
-				<div class="card h-100 shadow-sm" style="min-width: 250px; max-width: 300px;">
-				<img src="https://picsum.photos/300"
-					class="card-img-top img-fluid"
-					alt="${trick.name}"
-					style="height: 200px; object-fit: cover;"
-				>
-				<div class="card-body d-flex justify-content-between align-items-center">
-					<h5 class="card-title">${trick.name}</h5>
-					${res.data.isCurrentUserLoggedIn ? `
-						<div class="mt-auto">
-							<button class="btn btn-success btn-sm btn-edit-trick" data-trick-id="${trick.id}">
-								<i class="fas fa-edit"></i>
-							</button>
-							<button class="btn btn-danger btn-sm btn-delete-trick" data-trick-id="${trick.id}">
-								<i class="fas fa-trash"></i>
-							</button>
-						</div>
-					` : ''}
-					</div>
-				</div>
-			</div>
-			`;
+            <div class="col">
+                <div class="card h-100 shadow trick-card">
+                    <div class="card-img-wrapper overflow-hidden">
+                        <img src="https://picsum.photos/300"
+                            class="card-img-top trick-image"
+                            alt="${trick.name}">
+                    </div>
+                    <div class="card-body d-flex justify-content-between align-items-center py-3">
+                        <h3 class="card-title">${trick.name}</h3>
+                        ${res.data.isCurrentUserLoggedIn ? `
+                            <div class="action-buttons">
+                                <button class="btn btn-outline-success btn-edit-trick" data-trick-id="${trick.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-delete-trick" data-trick-id="${trick.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+            `;
 		});
 
 		tricksContainer.innerHTML += html;

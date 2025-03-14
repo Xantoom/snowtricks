@@ -14,7 +14,7 @@ final class HomeController extends AbstractController
 		SnowtrickRepository $snowtrickRepository
     ): Response
     {
-		$this->addFlash('success', 'Bienvenue sur SnowTricks !');
+		// $this->addFlash('success', 'Test of Flash alerts!');
 
 		$maxNbTricks = 15;
 		$tricks = $snowtrickRepository->findBy([], ['createdAt' => 'DESC'], $maxNbTricks);

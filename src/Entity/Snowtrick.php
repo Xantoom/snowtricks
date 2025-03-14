@@ -34,13 +34,13 @@ class Snowtrick
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick', cascade: ['remove'])]
     private Collection $comments;
 
     /**
      * @var Collection<int, File>
      */
-    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick')]
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick', cascade: ['remove'])]
     private Collection $files;
 
 	public function __toString(): string

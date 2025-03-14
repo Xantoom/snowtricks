@@ -71,6 +71,8 @@ class SnowtrickController extends AbstractController
 
 		$this->snowtrickRepository->remove($snowtrick);
 
+		$this->addFlash('success', 'Snowtrick '.$snowtrick->getName().' deleted successfully.');
+
 		return new JsonResponse(null, Response::HTTP_OK);
 	}
 
