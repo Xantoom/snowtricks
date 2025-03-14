@@ -14,12 +14,6 @@ class File
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $filename = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $extension = null;
-
-    #[ORM\Column(length: 255)]
     private ?string $path = null;
 
     #[ORM\Column]
@@ -39,34 +33,28 @@ class File
     #[ORM\JoinColumn(nullable: false)]
     private ?Snowtrick $snowtrick = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $type = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getFilename(): ?string
-    {
-        return $this->filename;
-    }
+	public function getFilename(): ?string
+	{
+		return pathinfo($this->path, PATHINFO_FILENAME);
+	}
 
-    public function setFilename(string $filename): static
-    {
-        $this->filename = $filename;
+	public function getExtension(): ?string
+	{
+		return pathinfo($this->path, PATHINFO_EXTENSION);
+	}
 
-        return $this;
-    }
-
-    public function getExtension(): ?string
-    {
-        return $this->extension;
-    }
-
-    public function setExtension(string $extension): static
-    {
-        $this->extension = $extension;
-
-        return $this;
-    }
+	public function getSize(): ?int
+	{
+		return filesize($this->path);
+	}
 
     public function getPath(): ?string
     {
@@ -136,6 +124,18 @@ class File
     public function setSnowtrick(?Snowtrick $snowtrick): static
     {
         $this->snowtrick = $snowtrick;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
