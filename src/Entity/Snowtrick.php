@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\SnowtrickCategories;
 use App\Repository\SnowtrickRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -42,6 +43,9 @@ class Snowtrick
      */
     #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick', cascade: ['remove'])]
     private Collection $files;
+
+    #[ORM\Column(type: 'string', length: 255, enumType: SnowtrickCategories::class)]
+    private ?SnowtrickCategories $category = null;
 
 	public function __toString(): string
 	{
@@ -176,6 +180,18 @@ class Snowtrick
                 $file->setSnowtrick(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCategory(): ?SnowtrickCategories
+    {
+        return $this->category;
+    }
+
+    public function setCategory(SnowtrickCategories $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

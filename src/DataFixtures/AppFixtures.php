@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Comment;
 use App\Entity\Snowtrick;
 use App\Entity\User;
+use App\Enum\SnowtrickCategories;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -292,6 +293,7 @@ class AppFixtures extends Fixture
                 ->setDescription($iValue['description'])
                 ->setName($iValue['name'])
                 ->setUpdatedAt($this->faker->boolean(30) ? new \DateTimeImmutable('-1 month') : null)
+	            ->setCategory($this->faker->randomElement(SnowtrickCategories::cases()))
             ;
             $manager->persist($snowtrick);
             $this->snowtricks[] = $snowtrick;
