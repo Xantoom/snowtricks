@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SnowtrickRepository::class)]
@@ -62,6 +63,17 @@ class Snowtrick
 		$this->createdAt = new \DateTimeImmutable();
         $this->files = new ArrayCollection();
     }
+
+	public function getSlug(): string
+	{
+		$slugger = new AsciiSlugger();
+		return $slugger->slug($this->name)->lower()->toString();
+	}
+
+	public function isSlug(string $slug): bool
+	{
+		return $this->getSlug() === strtolower($slug);
+	}
 
     public function getId(): ?int
     {
