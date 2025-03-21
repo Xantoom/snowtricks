@@ -25,10 +25,10 @@ class SnowtrickController extends AbstractController
 		return $this->render('snowtrick/index.html.twig');
 	}
 
-	#[Route('/{id}', name: 'show', methods: ['GET'])]
-	public function show(int $id): Response
+	#[Route('/{slug}', name: 'show', methods: ['GET'])]
+	public function show(string $slug): Response
 	{
-		$snowtrick = $this->snowtrickRepository->find($id);
+		$snowtrick = $this->snowtrickRepository->findOneBy(['slug' => $slug]);
 		if (null === $snowtrick) {
 			$this->addFlash('danger', 'Snowtrick not found.');
 			return $this->redirectToRoute('app_snowtrick_index');

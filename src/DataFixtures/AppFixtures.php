@@ -11,6 +11,7 @@ use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class AppFixtures extends Fixture
 {
@@ -286,6 +287,8 @@ class AppFixtures extends Fixture
         ];
 
         foreach ($snowtrickData as $iValue) {
+			$slugger = new AsciiSlugger();
+
             $snowtrick = new Snowtrick();
             $snowtrick
                 ->setCreatedAt(new \DateTimeImmutable('-1 year'))
@@ -294,6 +297,7 @@ class AppFixtures extends Fixture
                 ->setName($iValue['name'])
                 ->setUpdatedAt($this->faker->boolean(30) ? new \DateTimeImmutable('-1 month') : null)
 	            ->setCategory($this->faker->randomElement(SnowtrickCategories::cases()))
+	            ->setslug($slugger->slug($iValue['name'])->lower()->toString())
             ;
             $manager->persist($snowtrick);
             $this->snowtricks[] = $snowtrick;

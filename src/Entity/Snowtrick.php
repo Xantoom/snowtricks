@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SnowtrickRepository::class)]
@@ -52,6 +51,9 @@ class Snowtrick
     #[ORM\Column(type: 'string', length: 255, enumType: SnowtrickCategories::class)]
     private ?SnowtrickCategories $category = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
 	public function __toString(): string
 	{
 		return $this->name;
@@ -63,17 +65,6 @@ class Snowtrick
 		$this->createdAt = new \DateTimeImmutable();
         $this->files = new ArrayCollection();
     }
-
-	public function getSlug(): string
-	{
-		$slugger = new AsciiSlugger();
-		return $slugger->slug($this->name)->lower()->toString();
-	}
-
-	public function isSlug(string $slug): bool
-	{
-		return $this->getSlug() === strtolower($slug);
-	}
 
     public function getId(): ?int
     {
@@ -208,6 +199,18 @@ class Snowtrick
     public function setCategory(SnowtrickCategories $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
