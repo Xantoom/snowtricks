@@ -1,3 +1,6 @@
+// CSS
+import '../../styles/pages/home.css';
+
 import * as bootstrap from 'bootstrap';
 
 document.addEventListener('DOMContentLoaded', function() {

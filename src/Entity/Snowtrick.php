@@ -214,4 +214,13 @@ class Snowtrick
 
         return $this;
     }
+
+	public function getFirstImage(): ?File
+	{
+		$files = $this->files->filter(function (File $file) {
+			return $file->getType() === 'image';
+		});
+
+		return $files->isEmpty() ? null : $files->first();
+	}
 }

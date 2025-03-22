@@ -23,7 +23,7 @@ final class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
 			'tricks' => $tricks,
 			'nbTricks' => $nbTricks,
-	        'bannerImgLink' => 'https://images4.alphacoders.com/598/598152.jpg',
+	        'bannerImgLink' => $_ENV['DEFAULT_BANNER_IMAGE'],
         ]);
     }
 }
