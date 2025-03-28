@@ -1,0 +1,95 @@
+/* Banner styles */
+.banner {
+	position: relative;
+	height: 60vh;
+	min-height: 350px;
+	overflow: hidden;
+	margin-bottom: 2rem;
+}
+
+.banner-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: brightness(0.7);
+}
+
+.banner-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+}
+
+/* Media container styling */
+.media-container {
+	padding: 1rem 0;
+}
+
+/* Card and form styling */
+.card {
+	border-radius: 8px;
+	overflow: hidden;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.form-label.fw-bold {
+	font-size: 1.05rem;
+}
+
+/* Form controls */
+.form-control, .form-select {
+	border-radius: 6px;
+	border: 1px solid #dee2e6;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control-lg {
+	font-size: 1.1rem;
+}
+
+/* Button styling */
+.btn {
+	border-radius: 4px;
+	font-weight: 500;
+	padding: 0.5rem 1rem;
+	transition: all 0.2s ease;
+}
+
+.btn-primary {
+	background-color: #007bff;
+	border-color: #007bff;
+}
+
+.btn-primary:hover {
+	background-color: #0069d9;
+	border-color: #0062cc;
+	transform: translateY(-2px);
+}
+
+.btn-secondary {
+	background-color: #6c757d;
+	border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+	background-color: #5a6268;
+	border-color: #545b62;
+	transform: translateY(-2px);
+}
+
+/* Container spacing */
+.container {
+	padding-top: 2rem;
+}

@@ -18,15 +18,14 @@
 			<p class="banner-subtext">{{ snowtrick.category.value }}</p>
 		</div>
 
-		<!-- Edit banner button -->
-		<div class="banner-edit-btn" data-bs-toggle="modal" data-bs-target="#editBannerModal">
-			<i class="fas fa-camera"></i>
-		</div>
-
+		<!-- Banner actions -->
 		{% if snowtrick.firstImage is not null %}
-			<div class="position-absolute top-0 end-0 p-3">
-				<button class="btn btn-danger btn-lg rounded-circle" data-bs-toggle="modal" data-bs-target="#deleteBannerModal" data-file-id="{{ snowtrick.firstImage.id }}">
-					<i class="fas fa-trash"></i>
+			<div class="media-actions">
+				<button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#editBannerModal">
+					<i class="fas fa-edit text-success"></i>
+				</button>
+				<button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#deleteBannerModal" data-file-id="{{ snowtrick.firstImage.id }}">
+					<i class="fas fa-trash text-danger"></i>
 				</button>
 			</div>
 		{% endif %}
@@ -49,7 +48,7 @@
 
 					<!-- Existing media items -->
 					{% for file in snowtrick.files %}
-						<div class="media-item">
+						<div class="media-item {% if file.type == 'image' %}media-item-image{% elseif file.type == 'video' %}media-item-video{% endif %}">
 							{% if file.type == 'image' %}
 								<img src="{{ asset('uploads/' ~ file.path) }}" alt="Trick media" class="img-fluid">
 								<span class="media-type-badge bg-primary text-white">Image</span>
@@ -99,7 +98,7 @@
 			</div>
 
 			<!-- Action Buttons -->
-			<div class="d-flex justify-content-between">
+			<div class="d-flex justify-content-end gap-2">
 				<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTrickModal">
 					<i class="fas fa-trash me-2"></i>Delete Trick
 				</button>

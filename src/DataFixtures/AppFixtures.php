@@ -3,27 +3,31 @@
 namespace App\DataFixtures;
 
 use App\Entity\Comment;
+use App\Entity\File;
 use App\Entity\Snowtrick;
 use App\Entity\User;
 use App\Enum\SnowtrickCategories;
+use App\Service\FileManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class AppFixtures extends Fixture
 {
 	private Generator $faker;
-
 	private array $users = [];
 	private array $snowtricks = [];
 
-    public function __construct(
-        private readonly UserPasswordHasherInterface $passwordHasher,
-    ) {
-    }
+	public function __construct(
+		private readonly UserPasswordHasherInterface $hasher,
+		private readonly FileManager $fileManager,
+	) {
+		$this->faker = Factory::create();
+	}
 
     public function load(ObjectManager $manager): void
     {
@@ -32,6 +36,7 @@ class AppFixtures extends Fixture
 		$this->createUsers($manager);
 		$this->createSnowtricks($manager);
 		$this->createComments($manager);
+		$this->createFiles($manager);
 
         $manager->flush();
     }
@@ -45,7 +50,7 @@ class AppFixtures extends Fixture
 			->setEmail('user@test.fr')
 			->setFirstname('User')
 			->setLastname('User')
-			->setPassword($this->passwordHasher->hashPassword($user, $password))
+			->setPassword($this->hasher->hashPassword($user, $password))
 			->setRoles(['ROLE_USER'])
             ->setIsVerified(true)
 		;
@@ -57,7 +62,7 @@ class AppFixtures extends Fixture
 			->setEmail('admin@test.fr')
 			->setFirstname('Admin')
 			->setLastname('Admin')
-			->setPassword($this->passwordHasher->hashPassword($user, $password))
+			->setPassword($this->hasher->hashPassword($user, $password))
 			->setRoles(['ROLE_ADMIN'])
             ->setIsVerified(true)
 		;
@@ -71,7 +76,7 @@ class AppFixtures extends Fixture
 				->setEmail($this->faker->email)
 				->setFirstname($this->faker->firstName)
 				->setLastname($this->faker->lastName)
-				->setPassword($this->passwordHasher->hashPassword($user, $password))
+				->setPassword($this->hasher->hashPassword($user, $password))
 				->setRoles(['ROLE_USER'])
                 ->setIsVerified($this->faker->boolean(80))
 			;
@@ -410,18 +415,96 @@ class AppFixtures extends Fixture
             "This trick taught me a lot about body awareness and spatial orientation in the air."
         ];
 
-        foreach ($commentData as $iValue) {
-            $comment = new Comment();
-            $comment
-                ->setCreatedAt(new \DateTimeImmutable('-1 year'))
-                ->setCreatedBy($this->users[array_rand($this->users)])
-                ->setSnowtrick($this->snowtricks[array_rand($this->snowtricks)])
-                ->setEditedAt($this->faker->boolean(30) ? new \DateTimeImmutable('-1 month') : null)
-                ->setContent($iValue)
-            ;
-            $manager->persist($comment);
+		$nbCommentsPerSnowtrick = 32;
+
+        foreach ($this->snowtricks as $snowtrick) {
+			for ($i = 0; $i < $nbCommentsPerSnowtrick; $i++) {
+				$comment = new Comment();
+				$comment
+					->setCreatedAt(new \DateTimeImmutable('-1 year'))
+					->setCreatedBy($this->users[array_rand($this->users)])
+					->setSnowtrick($snowtrick)
+					->setEditedAt($this->faker->boolean(30) ? new \DateTimeImmutable('-1 month') : null)
+					->setContent($commentData[array_rand($commentData)])
+				;
+				$manager->persist($comment);
+			}
         }
 
         $manager->flush();
+	}
+
+	private function createFiles(ObjectManager $manager): void
+	{
+		$nbFilesPerSnowtrick = 8;
+
+		$videoLinks = [
+			'https://www.youtube.com/embed/SQyTWk7OxSI',
+			'https://www.youtube.com/embed/_2qetPRLpp4',
+			'https://www.youtube.com/embed/7hL8jYPTOhA',
+		];
+
+		$images = [
+			'Snowtricks_example_1.jpg',
+			'Snowtricks_example_2.avif',
+			'Snowtricks_example_3.jpg',
+		];
+
+		$imagesDir = __DIR__ . '/../../assets/images';
+
+		// Ensure we have images to use
+		if (!is_dir($imagesDir)) {
+			throw new \RuntimeException('Images directory not found: ' . $imagesDir);
+		}
+
+		// Verify that all example images exist
+		foreach ($images as $image) {
+			if (!file_exists($imagesDir . '/' . $image)) {
+				throw new \RuntimeException('Image file not found: ' . $imagesDir . '/' . $image);
+			}
+		}
+
+		foreach ($this->snowtricks as $snowtrick) {
+			// Mix of images and videos
+			for ($i = 0; $i < $nbFilesPerSnowtrick; $i++) {
+				$file = new File();
+				$file->setSnowtrick($snowtrick)
+					->setCreatedBy($this->faker->randomElement($this->users))
+					->setCreatedAt(new \DateTimeImmutable())
+				;
+
+				// Alternating between images and videos
+				if ($i % 3 === 0) {
+					// Video
+					$file->setType('video')
+						->setPath($this->faker->randomElement($videoLinks));
+				} else {
+					// Image - use our predefined images
+					$randomImageName = $this->faker->randomElement($images);
+					$imagePath = $imagesDir . '/' . $randomImageName;
+
+					// Create a temporary UploadedFile to use with the FileManager
+					$tempFile = sys_get_temp_dir() . '/' . $randomImageName;
+					copy($imagePath, $tempFile);
+					$uploadedFile = new UploadedFile(
+						$tempFile,
+						$randomImageName,
+						mime_content_type($imagePath),
+						null,
+						true
+					);
+
+					// Use the FileManager to handle the upload
+					$newFilePath = $this->fileManager->uploadFile($uploadedFile, $snowtrick->getId());
+
+					$file->setType('image')
+						->setPath($newFilePath);
+				}
+
+				$manager->persist($file);
+			}
+		}
+
+		$manager->flush();
 	}
 }

@@ -42,4 +42,8 @@ return [
 		'path' => './assets/js/pages/snowtrick-edit.js',
 		'entrypoint' => true,
 	],
+	'snowtrick-create' => [
+		'path' => './assets/js/pages/snowtrick-create.js',
+		'entrypoint' => true,
+	],
 ];

@@ -5,26 +5,28 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\File;
+use App\Entity\Snowtrick;
 use App\Enum\SnowtrickCategories;
 use App\Repository\FileRepository;
 use App\Repository\SnowtrickRepository;
+use App\Service\FileManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/snowtrick', name: 'app_snowtrick_')]
 class SnowtrickController extends AbstractController
 {
 	public function __construct(
 		private readonly SnowtrickRepository $snowtrickRepository,
+		private readonly FileManager $fileManager,
 	) {
 	}
 
-	#[Route('/{slug}', name: 'show', methods: ['GET'])]
+	#[Route('/{slug}', name: 'show', methods: ['GET'], priority: -1)]
 	public function show(string $slug): Response
 	{
 		$snowtrick = $this->snowtrickRepository->findOneBy(['slug' => $slug]);
@@ -42,7 +44,45 @@ class SnowtrickController extends AbstractController
 	#[Route('/create', name: 'create', methods: ['GET', 'POST'])]
 	public function create(Request $request): Response
 	{
-		return $this->render('snowtrick/create.html.twig');
+		// Check if user has permission to create
+		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+		// Handle form submission
+		if ($request->isMethod('POST')) {
+			$title = $request->request->get('title');
+			$description = $request->request->get('description');
+			$category = $request->request->get('category');
+
+			// Validate inputs
+			if (empty($title) || empty($description) || empty($category)) {
+				$this->addFlash('danger', 'All fields are required.');
+			} else {
+				// Create new snowtrick
+				$snowtrick = new Snowtrick();
+				$snowtrick
+					->setName($title)
+					->setDescription($description)
+					->setCategory(SnowtrickCategories::from($category))
+					->setCreatedAt(new \DateTimeImmutable())
+					->setCreatedBy($this->getUser())
+				;
+
+				// Generate slug from title
+				$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+				$snowtrick->setSlug($slug);
+
+				// Save to database
+				$this->snowtrickRepository->save($snowtrick);
+
+				$this->addFlash('success', 'Snowtrick created successfully.');
+				return $this->redirectToRoute('app_snowtrick_show', ['slug' => $snowtrick->getSlug()]);
+			}
+		}
+
+		return $this->render('snowtrick/create.html.twig', [
+			'defaultBannerImg' => $_ENV['DEFAULT_BANNER_IMAGE'],
+			'categories' => SnowtrickCategories::cases(),
+		]);
 	}
 
 	#[Route('/edit/{slug}', name: 'edit', methods: ['GET', 'POST'])]
@@ -141,7 +181,6 @@ class SnowtrickController extends AbstractController
 	public function addMedia(
 		string $slug,
 		Request $request,
-		SluggerInterface $slugger,
 		FileRepository $fileRepository
 	): Response {
 		$snowtrick = $this->snowtrickRepository->findOneBy(['slug' => $slug]);
@@ -156,10 +195,12 @@ class SnowtrickController extends AbstractController
 
 		$mediaType = $request->request->get('mediaType');
 		$file = new File();
-		$file->setType($mediaType);
-		$file->setSnowtrick($snowtrick);
-		$file->setCreatedBy($user);
-		$file->setCreatedAt(new \DateTimeImmutable());
+		$file
+			->setType($mediaType)
+			->setSnowtrick($snowtrick)
+			->setCreatedBy($user)
+			->setCreatedAt(new \DateTimeImmutable())
+		;
 
 		if ($mediaType === 'image') {
 			$imageFile = $request->files->get('imageFile');
@@ -168,15 +209,8 @@ class SnowtrickController extends AbstractController
 				return $this->redirectToRoute('app_snowtrick_edit', ['slug' => $slug]);
 			}
 
-			$originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-			$safeFilename = $slugger->slug($originalFilename);
-			$newFilename = $safeFilename . '-' . uniqid('', true) . '.' . $imageFile->guessExtension();
-
 			try {
-				$imageFile->move(
-					$this->getParameter('uploads_directory'),
-					$newFilename
-				);
+				$newFilename = $this->fileManager->uploadFile($imageFile, $snowtrick->getId());
 				$file->setPath($newFilename);
 			} catch (FileException $e) {
 				$this->addFlash('danger', 'Error uploading file: ' . $e->getMessage());
@@ -201,7 +235,6 @@ class SnowtrickController extends AbstractController
 	public function editMedia(
 		string $slug,
 		Request $request,
-		SluggerInterface $slugger,
 		FileRepository $fileRepository
 	): Response {
 		$snowtrick = $this->snowtrickRepository->findOneBy(['slug' => $slug]);
@@ -222,29 +255,16 @@ class SnowtrickController extends AbstractController
 			return $this->redirectToRoute('app_snowtrick_edit', ['slug' => $slug]);
 		}
 
-		$file->setEditedBy($user);
-		$file->setEditedAt(new \DateTimeImmutable());
+		$file
+			->setEditedBy($user)
+			->setEditedAt(new \DateTimeImmutable())
+		;
 
 		if ($file->getType() === 'image') {
 			$imageFile = $request->files->get('imageFile');
 			if ($imageFile) {
-				// Delete old file if it exists
-				$oldPath = $file->getPath();
-				$oldFilePath = $this->getParameter('uploads_directory') . '/' . $oldPath;
-				if (file_exists($oldFilePath)) {
-					unlink($oldFilePath);
-				}
-
-				// Save new file
-				$originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-				$safeFilename = $slugger->slug($originalFilename);
-				$newFilename = $safeFilename . '-' . uniqid('', true) . '.' . $imageFile->guessExtension();
-
 				try {
-					$imageFile->move(
-						$this->getParameter('uploads_directory'),
-						$newFilename
-					);
+					$newFilename = $this->fileManager->replaceFile($imageFile, $file->getPath(), $snowtrick->getId());
 					$file->setPath($newFilename);
 				} catch (FileException $e) {
 					$this->addFlash('danger', 'Error uploading file: ' . $e->getMessage());
@@ -282,10 +302,7 @@ class SnowtrickController extends AbstractController
 
 		// Delete the physical file if it's an image
 		if ($file->getType() === 'image') {
-			$filePath = $this->getParameter('uploads_directory') . '/' . $file->getPath();
-			if (file_exists($filePath)) {
-				unlink($filePath);
-			}
+			$this->fileManager->deleteFile($file->getPath());
 		}
 
 		$fileRepository->remove($file);

@@ -106,29 +106,58 @@
 	transition: transform 0.3s ease-out; /* Add transition effect from index page */
 }
 
-/* Add Edit Banner button position */
+/* Replace the current banner-edit-btn styles with this */
 .banner-edit-btn {
 	position: absolute;
-	bottom: 30px;
-	right: 30px;
-	width: 60px;
-	height: 60px;
-	background-color: rgba(255, 255, 255, 0.9);
-	border-radius: 50%;
+	top: 10px;
+	right: 10px;
+	width: 32px;
+	height: 32px;
+	padding: 0;
 	display: flex;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 4px;
 	color: #333;
-	font-size: 1.5rem;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-	transition: all 0.3s ease;
+	font-size: 0.9rem;
 	z-index: 10;
-	cursor: pointer;
+	transition: background-color 0.2s ease;
 }
 
 .banner-edit-btn:hover {
 	background-color: #fff;
 	color: #007bff;
-	transform: translateY(-3px);
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Replace the media-type-badge with border styling */
+.media-item {
+	flex: 0 0 300px;
+	height: 200px;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	position: relative;
+	border: 3px solid transparent;
+	transition: transform 0.2s ease;
+}
+
+/* Image items will have a blue border */
+.media-item.media-item-image {
+	border-color: #007bff; /* Bootstrap primary color */
+}
+
+/* Video items will have a red border */
+.media-item.media-item-video {
+	border-color: #dc3545; /* Bootstrap danger color */
+}
+
+/* Hover effect for media items */
+.media-item:hover {
+	transform: translateY(-5px);
+}
+
+/* Hide the original badges */
+.media-type-badge {
+	display: none;
 }
