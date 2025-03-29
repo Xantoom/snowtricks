@@ -30,14 +30,17 @@
 	<!-- Main content -->
 	<main class="flex-grow-1">
 		<div class="container-fluid">
-			{% for label, messages in app.flashes %}
-				{% for message in messages %}
-					<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-						{{ message }}
-						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-					</div>
+			<!-- display error message only if not on route '/' -->
+			{% if app.request.attributes.get('_route') != 'app_home' %}
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+							{{ message }}
+							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+					{% endfor %}
 				{% endfor %}
-			{% endfor %}
+			{% endif %}
 			{% block body %}{% endblock %}
 		</div>
 	</main>

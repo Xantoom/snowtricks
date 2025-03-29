@@ -6,7 +6,9 @@ namespace App\Controller;
 
 use App\Entity\File;
 use App\Entity\Snowtrick;
+use App\Entity\User;
 use App\Enum\SnowtrickCategories;
+use App\Form\SnowtrickType;
 use App\Repository\FileRepository;
 use App\Repository\SnowtrickRepository;
 use App\Service\FileManager;
@@ -23,6 +25,7 @@ class SnowtrickController extends AbstractController
 	public function __construct(
 		private readonly SnowtrickRepository $snowtrickRepository,
 		private readonly FileManager $fileManager,
+		private readonly FileRepository $fileRepository,
 	) {
 	}
 
@@ -96,40 +99,83 @@ class SnowtrickController extends AbstractController
 
 		// Check if user has permission to edit
 		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+		$user = $this->getUser();
 
-		// Handle form submission
-		if ($request->isMethod('POST')) {
-			$title = $request->request->get('title');
-			$description = $request->request->get('description');
-			$category = $request->request->get('category');
+		// Create form
+		$form = $this->createForm(SnowtrickType::class, $snowtrick);
+		$form->handleRequest($request);
 
-			// Validate inputs
-			if (empty($title) || empty($description) || empty($category)) {
-				$this->addFlash('danger', 'All fields are required.');
-			} else {
-				// Update snowtrick
-				$snowtrick->setName($title);
-				$snowtrick->setDescription($description);
-				$snowtrick->setCategory(SnowtrickCategories::from($category));
-				$snowtrick->setUpdatedAt(new \DateTimeImmutable());
+		if ($form->isSubmitted() && $form->isValid()) {
+			// Process new media items from temporary storage
+			$this->processNewMediaItems($request, $snowtrick, $user);
 
-				// Generate slug from title
-				$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-				$snowtrick->setSlug($slug);
+			// Update timestamps
+			$snowtrick->setUpdatedAt(new \DateTimeImmutable());
 
-				// Save to database
-				$this->snowtrickRepository->save($snowtrick);
+			// Save to database
+			$this->snowtrickRepository->save($snowtrick);
 
-				$this->addFlash('success', 'Snowtrick updated successfully.');
-				return $this->redirectToRoute('app_snowtrick_show', ['slug' => $snowtrick->getSlug()]);
-			}
+			$this->addFlash('success', 'Snowtrick updated successfully.');
+			return $this->redirectToRoute('app_snowtrick_show', ['slug' => $snowtrick->getSlug()]);
 		}
+
+		// Sort files from newest to oldest for gallery display
+		$files = $snowtrick->getFiles()->toArray();
+		usort($files, static function($a, $b) {
+			return $b->getCreatedAt() <=> $a->getCreatedAt();
+		});
+
+		// Get oldest image for banner (reverse sort the images)
+		$imageFiles = array_filter($files, static function($file) {
+			return $file->getType() === 'image';
+		});
+
+		// Sort oldest to newest for banner selection
+		usort($imageFiles, static function($a, $b) {
+			return $a->getCreatedAt() <=> $b->getCreatedAt();
+		});
+
+		$bannerImage = !empty($imageFiles) ? $imageFiles[0] : null;
 
 		return $this->render('snowtrick/edit.html.twig', [
 			'snowtrick' => $snowtrick,
+			'form' => $form->createView(),
 			'defaultBannerImg' => $_ENV['DEFAULT_BANNER_IMAGE'],
-			'categories' => SnowtrickCategories::cases(),
+			'sortedFiles' => $files,
+			'bannerImage' => $bannerImage,
 		]);
+	}
+
+	/**
+	 * Process new media items submitted from the form
+	 */
+	private function processNewMediaItems(Request $request, Snowtrick $snowtrick, User $user): void
+	{
+		$newMediaItems = $request->request->all('new_media');
+		foreach ($newMediaItems as $mediaData) {
+			$mediaInfo = json_decode($mediaData, true, 512, JSON_THROW_ON_ERROR);
+
+			$file = new File();
+			$file
+				->setType($mediaInfo['type'])
+				->setSnowtrick($snowtrick)
+				->setCreatedBy($user)
+				->setCreatedAt(new \DateTimeImmutable())
+			;
+
+			if ($mediaInfo['type'] === 'image') {
+				// Find the uploaded file in the request
+				$imageFile = $request->files->get('imageFile_' . $mediaInfo['id']);
+				if ($imageFile) {
+					$newFilename = $this->fileManager->uploadFile($imageFile, $snowtrick->getId());
+					$file->setPath($newFilename);
+					$this->fileRepository->save($file);
+				}
+			} elseif ($mediaInfo['type'] === 'video') {
+				$file->setPath($mediaInfo['content']);
+				$this->fileRepository->save($file);
+			}
+		}
 	}
 
 	#[Route('/delete/{id}', name: 'delete', methods: ['DELETE'])]
@@ -166,6 +212,8 @@ class SnowtrickController extends AbstractController
 			$data['tricks'][] = [
 				'id' => $trick->getId(),
 				'name' => $trick->getName(),
+				'slug' => $trick->getSlug(),
+				'image' => $trick->getFirstImage() ? $trick->getFirstImage()->getPath() : $_ENV['DEFAULT_BANNER_IMAGE'],
 			];
 		}
 		$data['isThereAnyTricksLeftToDisplay'] = $totalNbTricks / $tricksPerPage > $page;

@@ -229,66 +229,6 @@ class AppFixtures extends Fixture
                 'name' => 'Frontside Noseslide',
                 'description' => 'A rail trick where the rider places the front of the board on the rail or box, with the tail hanging off. The inverse position of the bluntslide, equally technical.'
             ],
-            [
-                'name' => 'Miller Flip',
-                'description' => 'A backflip combined with a frontside 360. This advanced trick combines inversion and rotation for a spectacular effect. Named after its inventor, Chris Miller.'
-            ],
-            [
-                'name' => 'Double Cork',
-                'description' => 'An off-axis rotation containing two inversions where the head passes under the feet. Double corks have become a standard in high-level competitions.'
-            ],
-            [
-                'name' => 'Triple Cork',
-                'description' => 'An evolution of the double cork with three inversions. This extremely technical trick represents the cutting edge of modern freestyle snowboarding and requires enormous air and control.'
-            ],
-            [
-                'name' => 'Handplant',
-                'description' => 'A trick where the rider places one or two hands on the coping of a halfpipe or the edge of an obstacle while holding the board in the air. Inspired by skateboarding.'
-            ],
-            [
-                'name' => 'Crippler',
-                'description' => 'A backside inversion performed on a halfpipe wall. The rider performs a backside rotation with a flip element, creating a distinctive circular movement.'
-            ],
-            [
-                'name' => 'Underflip',
-                'description' => 'A combination of a frontside 180 followed by a backflip. This trick creates a fluid transition between rotation and inversion, very aesthetic in the air.'
-            ],
-            [
-                'name' => 'Eurocarve',
-                'description' => 'An extreme carving technique where the rider leans so much into their turn that their hand and sometimes their entire body touches the snow. More a riding style than a specific trick.'
-            ],
-            [
-                'name' => 'Misty Flip',
-                'description' => 'An off-axis frontside rotation with an inversion element. The misty combines a horizontal rotation and an inversion movement for a unique visual effect.'
-            ],
-            [
-                'name' => 'Backside Alley-oop',
-                'description' => 'A backside rotation performed going up the wall of a halfpipe (in the opposite direction of travel). This counter-intuitive trick creates a distinctive suspension effect.'
-            ],
-            [
-                'name' => 'Seatbelt',
-                'description' => 'A grab where the rider passes their front hand behind their back to grab the heelside edge between the bindings. This advanced grab requires a lot of flexibility and control.'
-            ],
-            [
-                'name' => 'Roast Beef',
-                'description' => 'A grab where the rider grabs the heelside edge of the board between the bindings with their back hand, between the legs. Complex position that adds style to any rotation.'
-            ],
-            [
-                'name' => 'Crail',
-                'description' => 'A grab where the rider grabs the toeside edge of the board in front of the front binding with their back hand. This grab crosses the body and requires good extension.'
-            ],
-            [
-                'name' => 'Michalchuk',
-                'description' => 'An alley-oop backflip in the halfpipe, named after its inventor, Trevor Michalchuk. This trick combines the difficulty of an alley-oop with the inversion of a backflip.'
-            ],
-            [
-                'name' => 'Backside Rodeo',
-                'description' => 'A variant of the rodeo where the initial rotation is backside. The combination of backside rotation and inversion creates a fluid movement highly appreciated in backcountry.'
-            ],
-            [
-                'name' => 'Frontside 900',
-                'description' => 'Two and a half rotations (900 degrees) turning toward the front. This very high-level trick is commonly executed in halfpipe and big air competitions.'
-            ]
         ];
 
         foreach ($snowtrickData as $iValue) {

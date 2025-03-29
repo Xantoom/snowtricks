@@ -1,32 +1,69 @@
 // CSS
 import '../../styles/pages/snowtrick-edit.css';
 
+// JS
+import * as bootstrap from 'bootstrap';
+
 document.addEventListener('DOMContentLoaded', function() {
-	// Toggle media type forms in add media modal
-	document.getElementById('mediaType').addEventListener('change', function() {
-		const imageForm = document.getElementById('imageUploadForm');
-		const videoForm = document.getElementById('videoUrlForm');
+	// Initialize media handling
+	initializeMediaHandling();
 
-		if (this.value === 'image') {
-			imageForm.style.display = 'block';
-			videoForm.style.display = 'none';
-		} else {
-			imageForm.style.display = 'none';
-			videoForm.style.display = 'block';
-		}
-	});
+	// Setup delete trick functionality
+	setupDeleteTrick();
+});
 
-	// Edit media modal setup
-	const editMediaModal = document.getElementById('editMediaModal');
-	if (editMediaModal) {
-		editMediaModal.addEventListener('show.bs.modal', function(event) {
-			const button = event.relatedTarget;
-			const fileId = button.getAttribute('data-file-id');
-			const fileType = button.getAttribute('data-file-type');
+function initializeMediaHandling() {
+	// Open add media modal
+	const addMediaButton = document.querySelector('.add-media-card');
+	if (addMediaButton) {
+		addMediaButton.addEventListener('click', function() {
+			const modal = new bootstrap.Modal(document.getElementById('addMediaModal'));
+			modal.show();
+		});
+	}
 
+	// Toggle media type in add media modal
+	const mediaTypeSelect = document.getElementById('mediaType');
+	if (mediaTypeSelect) {
+		mediaTypeSelect.addEventListener('change', function() {
+			toggleMediaForms(this.value);
+		});
+	}
+
+	// Setup edit media buttons
+	setupEditMediaButtons();
+
+	// Handle add media confirmation
+	setupAddMediaButton();
+
+	// Handle delete media buttons
+	setupDeleteMediaButtons();
+}
+
+function toggleMediaForms(mediaType) {
+	const imageForm = document.getElementById('imageUploadForm');
+	const videoForm = document.getElementById('videoUrlForm');
+
+	if (mediaType === 'image') {
+		imageForm.style.display = 'block';
+		videoForm.style.display = 'none';
+	} else {
+		imageForm.style.display = 'none';
+		videoForm.style.display = 'block';
+	}
+}
+
+function setupEditMediaButtons() {
+	document.querySelectorAll('.btn-edit-media').forEach(button => {
+		button.addEventListener('click', function() {
+			const fileId = this.getAttribute('data-file-id');
+			const fileType = this.getAttribute('data-file-type');
+
+			// Set values in the edit modal
 			document.getElementById('editFileId').value = fileId;
+			document.getElementById('editMediaType').value = fileType;
 
-			// Show appropriate form based on file type
+			// Toggle appropriate form
 			if (fileType === 'image') {
 				document.getElementById('editImageForm').style.display = 'block';
 				document.getElementById('editVideoForm').style.display = 'none';
@@ -35,87 +72,147 @@ document.addEventListener('DOMContentLoaded', function() {
 				document.getElementById('editVideoForm').style.display = 'block';
 			}
 		});
-	}
+	});
+}
 
-	// Delete media functionality
-	const deleteMediaModal = document.getElementById('deleteMediaModal');
-	if (deleteMediaModal) {
-		deleteMediaModal.addEventListener('show.bs.modal', function(event) {
-			const button = event.relatedTarget;
-			const fileId = button.getAttribute('data-file-id');
-			document.getElementById('confirmDeleteMedia').setAttribute('data-file-id', fileId);
+function setupAddMediaButton() {
+	const confirmAddMediaBtn = document.getElementById('confirmAddMedia');
+	if (confirmAddMediaBtn) {
+		confirmAddMediaBtn.addEventListener('click', function() {
+			const mediaType = document.getElementById('mediaType').value;
+			let tempPreview;
+			let formData = new FormData();
+
+			formData.append('mediaType', mediaType);
+
+			if (mediaType === 'image') {
+				const imageFile = document.getElementById('newImageFile').files[0];
+				if (!imageFile) {
+					alert('Please select an image file');
+					return;
+				}
+				formData.append('imageFile', imageFile);
+				tempPreview = URL.createObjectURL(imageFile);
+			} else {
+				const videoUrl = document.getElementById('newVideoUrl').value;
+				if (!videoUrl) {
+					alert('Please enter a video URL');
+					return;
+				}
+				formData.append('videoUrl', videoUrl);
+				tempPreview = videoUrl;
+			}
+
+			// Add media to carousel (most recent first)
+			addMediaToCarousel(mediaType, tempPreview);
+
+			// Add to hidden form field to be processed on form submission
+			addMediaToForm(mediaType, mediaType === 'image' ? document.getElementById('newImageFile').files[0] : tempPreview);
+
+			// Close modal and reset form
+			bootstrap.Modal.getInstance(document.getElementById('addMediaModal')).hide();
+			document.getElementById('newImageFile').value = '';
+			document.getElementById('newVideoUrl').value = '';
 		});
 	}
+}
 
-	// Handle delete media confirmation
-	const confirmDeleteMediaBtn = document.getElementById('confirmDeleteMedia');
-	if (confirmDeleteMediaBtn) {
-		confirmDeleteMediaBtn.addEventListener('click', function() {
+function addMediaToCarousel(type, content) {
+	const mediaCarousel = document.querySelector('.media-carousel');
+	const addButton = document.querySelector('.add-media-card');
+
+	const mediaItem = document.createElement('div');
+	mediaItem.className = `media-item media-item-${type} temp-media`;
+
+	if (type === 'image') {
+		mediaItem.innerHTML = `
+            <img src="${content}" alt="New media" class="img-fluid">
+            <div class="media-actions">
+                <button type="button" class="btn btn-remove-temp">
+                    <i class="fas fa-times text-danger"></i>
+                </button>
+            </div>
+        `;
+	} else {
+		mediaItem.innerHTML = `
+            <div class="ratio ratio-16x9 h-100">
+                <iframe src="${content}" allowfullscreen></iframe>
+            </div>
+            <div class="media-actions">
+                <button type="button" class="btn btn-remove-temp">
+                    <i class="fas fa-times text-danger"></i>
+                </button>
+            </div>
+        `;
+	}
+
+	// Insert right after the add button (newest first)
+	mediaCarousel.insertBefore(mediaItem, addButton.nextSibling);
+
+	// Add event listener to remove button
+	mediaItem.querySelector('.btn-remove-temp').addEventListener('click', function() {
+		// Also remove the corresponding form input
+		const tempMediaIndex = Array.from(mediaCarousel.querySelectorAll('.temp-media')).indexOf(mediaItem);
+		const mediaInputs = document.querySelectorAll('input[name="new_media[]"]');
+		if (mediaInputs[tempMediaIndex]) {
+			mediaInputs[tempMediaIndex].remove();
+		}
+		mediaItem.remove();
+	});
+}
+
+function addMediaToForm(type, content) {
+	// Create a unique ID for this media
+	const tempId = 'temp_' + Date.now();
+
+	// Add to hidden form field to be processed on form submission
+	const mediaDataInput = document.createElement('input');
+	mediaDataInput.type = 'hidden';
+	mediaDataInput.name = 'new_media[]';
+	mediaDataInput.value = JSON.stringify({
+		id: tempId,
+		type: type,
+		content: type === 'image' ? content.name : content
+	});
+
+	document.getElementById('snowtrickForm').appendChild(mediaDataInput);
+}
+
+function setupDeleteMediaButtons() {
+	document.querySelectorAll('.btn-delete-media').forEach(button => {
+		button.addEventListener('click', function() {
 			const fileId = this.getAttribute('data-file-id');
-			// Send delete request
-			fetch(`/snowtrick/media/delete/${fileId}`, {
-				method: 'DELETE',
-				headers: {
-					'X-Requested-With': 'XMLHttpRequest'
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
-				if (data.success) {
-					// Hide modal and reload page to reflect changes
-					const modal = bootstrap.Modal.getInstance(document.getElementById('deleteMediaModal'));
-					modal.hide();
-					location.reload();
-				}
-			})
-			.catch(error => console.error('Error:', error));
+			document.getElementById('deleteFileId').value = fileId;
 		});
-	}
+	});
+}
 
-	// Handle delete banner confirmation
-	const confirmDeleteBannerBtn = document.getElementById('confirmDeleteBanner');
-	if (confirmDeleteBannerBtn) {
-		confirmDeleteBannerBtn.addEventListener('click', function() {
-			const fileId = document.querySelector('[data-bs-target="#deleteBannerModal"]').getAttribute('data-file-id');
-			// Send delete request
-			fetch(`/snowtrick/media/delete/${fileId}`, {
-				method: 'DELETE',
-				headers: {
-					'X-Requested-With': 'XMLHttpRequest'
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
-				if (data.success) {
-					// Hide modal and reload page to reflect changes
-					const modal = bootstrap.Modal.getInstance(document.getElementById('deleteBannerModal'));
-					modal.hide();
-					location.reload();
-				}
-			})
-			.catch(error => console.error('Error:', error));
-		});
-	}
-
-	// Handle delete trick confirmation
+function setupDeleteTrick() {
 	const confirmDeleteTrickBtn = document.getElementById('confirmDeleteTrick');
 	if (confirmDeleteTrickBtn) {
 		confirmDeleteTrickBtn.addEventListener('click', function() {
 			const trickId = this.getAttribute('data-trick-id');
-			// Send delete request
+
 			fetch(`/snowtrick/delete/${trickId}`, {
 				method: 'DELETE',
 				headers: {
 					'X-Requested-With': 'XMLHttpRequest'
 				}
 			})
-			.then(response => response.json())
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
 			.then(() => {
 				// Redirect to homepage after successful deletion
-				sessionStorage.setItem('flashMessage', 'Trick successfully deleted!');
 				window.location.href = '/';
 			})
-			.catch(error => console.error('Error:', error));
+			.catch(error => {
+				console.error('Error:', error);
+				alert('An error occurred while deleting the trick.');
+			});
 		});
 	}
-});
+}

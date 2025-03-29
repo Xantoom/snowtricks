@@ -2,7 +2,7 @@
 	<a href="{{ path('app_snowtrick_show', {'slug': trick.slug}) }}" class="text-decoration-none">
 		<div class="card h-100 shadow trick-card">
 			<div class="card-img-wrapper overflow-hidden">
-				<img src="https://picsum.photos/300"
+				<img src="{% if trick.firstImage is not null %}{{ asset('uploads/' ~ trick.firstImage.path) }}{% else %}{{ bannerImgLink }}{% endif %}"
 				     class="card-img-top trick-image"
 				     alt="{{ trick.name }}">
 			</div>

@@ -28,29 +28,31 @@ const handleEvent = (btn) => {
 		let html = '';
 		tricks.forEach((trick) => {
 			html += `
-            <div class="col">
-                <div class="card h-100 shadow trick-card">
-                    <div class="card-img-wrapper overflow-hidden">
-                        <img src="https://picsum.photos/300"
-                            class="card-img-top trick-image"
-                            alt="${trick.name}">
-                    </div>
-                    <div class="card-body d-flex justify-content-between align-items-center py-3">
-                        <h3 class="card-title">${trick.name}</h3>
-                        ${res.data.isCurrentUserLoggedIn ? `
-                            <div class="action-buttons">
-                                <button class="btn btn-outline-success btn-edit-trick" data-trick-id="${trick.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-outline-danger btn-delete-trick" data-trick-id="${trick.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-            `;
+		        <div class="col">
+		            <a href="/snowtrick/${trick.slug}" class="text-decoration-none">
+		                <div class="card h-100 shadow trick-card">
+		                    <div class="card-img-wrapper overflow-hidden">
+		                        <img src="${trick.image.includes('http') ? trick.image : 'uploads/' + trick.image}"
+		                            class="card-img-top trick-image"
+		                            alt="${trick.name}" />
+		                    </div>
+		                    <div class="card-body d-flex justify-content-between align-items-center py-3">
+		                        <h3 class="card-title text-body">${trick.name}</h3>
+		                        ${res.data.isCurrentUserLoggedIn ? `
+		                            <div class="action-buttons">
+		                                <a class="btn btn-outline-success" href="/snowtrick/edit/${trick.slug}">
+		                                    <i class="fas fa-edit"></i>
+		                                </a>
+		                                <button class="btn btn-outline-danger btn-delete-trick" data-trick-id="${trick.id}">
+		                                    <i class="fas fa-trash"></i>
+		                                </button>
+		                            </div>
+		                        ` : ''}
+		                    </div>
+		                </div>
+		            </a>
+		        </div>
+		    `;
 		});
 
 		tricksContainer.innerHTML += html;
