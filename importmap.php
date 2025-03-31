@@ -30,6 +30,10 @@ return [
 		'path' => './assets/js/load-more.js',
 		'entrypoint' => true,
 	],
+	'load-more-comments' => [
+		'path' => './assets/js/load-more-comments.js',
+		'entrypoint' => true,
+	],
 	'home' => [
 		'path' => './assets/js/pages/home.js',
 		'entrypoint' => true,
