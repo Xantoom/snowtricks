@@ -1,0 +1,25 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8 text-center">
+				<div class="error-container p-4">
+					<h1 class="display-1 fw-bold text-danger">403</h1>
+					<div class="mb-4">
+						<i class="fas fa-ban fa-5x text-muted mb-3"></i>
+						<h2 class="mb-4">No Access to This Slope!</h2>
+						<p class="lead">Sorry, you don't have permission to access this area. This slope is reserved.</p>
+					</div>
+					<div class="mt-5">
+						<a href="{{ path('app_home') }}" class="btn btn-primary btn-lg">
+							<i class="fas fa-home me-2"></i>Return to Safe Grounds
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

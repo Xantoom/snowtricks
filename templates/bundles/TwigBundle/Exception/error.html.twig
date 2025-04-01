@@ -1,0 +1,26 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}Error Occurred{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8 text-center">
+				<div class="error-container p-4">
+					<h1 class="display-1 fw-bold text-warning">Oops!</h1>
+					<div class="mb-4">
+						<i class="fas fa-exclamation-triangle fa-5x text-muted mb-3"></i>
+						<h2 class="mb-4">Wipeout!</h2>
+						<p class="lead">Something went wrong while carving these slopes. Our team is working on it!</p>
+						<p class="text-muted">{{ status_code|default('500') }} - {{ status_text|default('Server Error') }}</p>
+					</div>
+					<div class="mt-5">
+						<a href="{{ path('app_home') }}" class="btn btn-primary btn-lg">
+							<i class="fas fa-home me-2"></i>Back to Base Camp
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

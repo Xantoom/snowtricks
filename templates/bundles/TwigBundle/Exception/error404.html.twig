@@ -1,0 +1,26 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}Page Not Found{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8 text-center">
+				<div class="error-container p-4">
+					<h1 class="display-1 fw-bold text-primary">404</h1>
+					<div class="mb-4">
+						<i class="fas fa-snowboarding fa-5x text-muted mb-3"></i>
+						<h2 class="mb-4">Oops! Trail Not Found</h2>
+						<p class="lead">Looks like you've ventured off the mapped trails. This page doesn't exist!</p>
+					</div>
+					<div class="mt-5">
+						<a href="{{ path('app_home') }}" class="btn btn-primary btn-lg">
+							<i class="fas fa-home me-2"></i>Back to Home Base
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
