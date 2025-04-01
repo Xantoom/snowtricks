@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SnowtrickRepository::class)]
 #[UniqueEntity(fields: ['name'], message: 'There is already a snowtrick with this name')]
@@ -21,7 +20,6 @@ class Snowtrick
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Unique]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -46,6 +44,7 @@ class Snowtrick
      * @var Collection<int, File>
      */
     #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick', cascade: ['remove'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
     private Collection $files;
 
     #[ORM\Column(type: 'string', length: 255, enumType: SnowtrickCategories::class)]

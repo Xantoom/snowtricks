@@ -176,13 +176,27 @@ function addMediaToForm(type, content) {
 	});
 
 	document.getElementById('snowtrickForm').appendChild(mediaDataInput);
+
+	// For images, create a file input to hold the actual file data
+	if (type === 'image') {
+		const fileInput = document.createElement('input');
+		fileInput.type = 'file';
+		fileInput.name = 'imageFile_' + tempId;
+		fileInput.style.display = 'none';
+
+		// Create a FileList-like object with our file
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(content);
+		fileInput.files = dataTransfer.files;
+
+		document.getElementById('snowtrickForm').appendChild(fileInput);
+	}
 }
 
 function setupDeleteMediaButtons() {
 	document.querySelectorAll('.btn-delete-media').forEach(button => {
 		button.addEventListener('click', function() {
-			const fileId = this.getAttribute('data-file-id');
-			document.getElementById('deleteFileId').value = fileId;
+			document.getElementById('deleteFileId').value = this.getAttribute('data-file-id');
 		});
 	});
 }
