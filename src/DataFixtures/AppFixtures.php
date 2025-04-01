@@ -405,41 +405,44 @@ class AppFixtures extends Fixture
 		}
 
 		foreach ($this->snowtricks as $snowtrick) {
-			// Mix of images and videos
-			for ($i = 0; $i < $nbFilesPerSnowtrick; $i++) {
+			foreach ($videoLinks as $videoLink) {
 				$file = new File();
 				$file->setSnowtrick($snowtrick)
 					->setCreatedBy($this->faker->randomElement($this->users))
 					->setCreatedAt(new \DateTimeImmutable())
+					->setType('video')
+					->setPath($videoLink)
 				;
 
-				// Alternating between images and videos
-				if ($i % 3 === 0) {
-					// Video
-					$file->setType('video')
-						->setPath($this->faker->randomElement($videoLinks));
-				} else {
-					// Image - use our predefined images
-					$randomImageName = $this->faker->randomElement($images);
-					$imagePath = $imagesDir . '/' . $randomImageName;
+				$manager->persist($file);
+			}
 
-					// Create a temporary UploadedFile to use with the FileManager
-					$tempFile = sys_get_temp_dir() . '/' . $randomImageName;
-					copy($imagePath, $tempFile);
-					$uploadedFile = new UploadedFile(
-						$tempFile,
-						$randomImageName,
-						mime_content_type($imagePath),
-						null,
-						true
-					);
+			foreach ($images as $image) {
+				$file = new File();
+				$file->setSnowtrick($snowtrick)
+					->setCreatedBy($this->faker->randomElement($this->users))
+					->setCreatedAt(new \DateTimeImmutable())
+					->setType('image')
+				;
 
-					// Use the FileManager to handle the upload
-					$newFilePath = $this->fileManager->uploadFile($uploadedFile, $snowtrick->getId());
+				// Image - use our predefined images
+				$imagePath = $imagesDir . '/' . $image;
 
-					$file->setType('image')
-						->setPath($newFilePath);
-				}
+				// Create a temporary UploadedFile to use with the FileManager
+				$tempFile = sys_get_temp_dir() . '/' . $image;
+				copy($imagePath, $tempFile);
+				$uploadedFile = new UploadedFile(
+					$tempFile,
+					$image,
+					mime_content_type($imagePath),
+					null,
+					true
+				);
+
+				// Use the FileManager to handle the upload
+				$newFilePath = $this->fileManager->uploadFile($uploadedFile, $snowtrick->getId());
+
+				$file->setPath($newFilePath);
 
 				$manager->persist($file);
 			}

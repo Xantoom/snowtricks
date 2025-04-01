@@ -58,10 +58,12 @@ function setupEditMediaButtons() {
 		button.addEventListener('click', function() {
 			const fileId = this.getAttribute('data-file-id');
 			const fileType = this.getAttribute('data-file-type');
+			const isBanner = this.closest('.banner') !== null;
 
 			// Set values in the edit modal
 			document.getElementById('editFileId').value = fileId;
 			document.getElementById('editMediaType').value = fileType;
+			document.getElementById('editMediaForm').setAttribute('data-is-banner', isBanner);
 
 			// Toggle appropriate form
 			if (fileType === 'image') {
@@ -73,6 +75,26 @@ function setupEditMediaButtons() {
 			}
 		});
 	});
+
+	// Also add submit handler for the edit form to update banner if needed
+	const editForm = document.getElementById('editMediaForm');
+	if (editForm) {
+		editForm.addEventListener('submit', function(e) {
+			// Check if edited media is banner
+			const isBanner = this.getAttribute('data-is-banner') === 'true';
+			const fileType = document.getElementById('editMediaType').value;
+
+			if (isBanner && fileType === 'image') {
+				// For immediate preview, set timeout to update banner after form submission
+				setTimeout(function() {
+					const bannerImg = document.querySelector('.banner-image');
+					const fileId = document.getElementById('editFileId').value;
+					// Refresh the banner by forcing a cache refresh with a timestamp
+					bannerImg.src = bannerImg.src.split('?')[0] + '?t=' + new Date().getTime();
+				}, 500);
+			}
+		});
+	}
 }
 
 function setupAddMediaButton() {
@@ -114,6 +136,95 @@ function setupAddMediaButton() {
 			document.getElementById('newImageFile').value = '';
 			document.getElementById('newVideoUrl').value = '';
 		});
+	}
+}
+
+function setupDeleteMediaButtons() {
+	const deleteButtons = document.querySelectorAll('.btn-delete-media');
+	const confirmDeleteButton = document.getElementById('confirmDeleteMedia');
+
+	// Add file ID to modal when delete button is clicked
+	deleteButtons.forEach(button => {
+		button.addEventListener('click', function() {
+			const fileId = this.getAttribute('data-file-id');
+			confirmDeleteButton.setAttribute('data-file-id', fileId);
+			const isBanner = button.closest('.banner') !== null;
+			confirmDeleteButton.setAttribute('data-is-banner', isBanner);
+		});
+	});
+
+	// Setup the confirm delete button
+	if (confirmDeleteButton) {
+		confirmDeleteButton.addEventListener('click', function() {
+			const fileId = this.getAttribute('data-file-id');
+			const isBanner = this.getAttribute('data-is-banner') === 'true';
+
+			fetch(`/snowtrick/media/delete/${fileId}`, {
+				method: 'DELETE',
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest'
+				}
+			})
+			.then(response => {
+				if(!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(data => {
+				if(data.success) {
+					// Remove the media item from the DOM
+					const mediaItems = document.querySelectorAll('.media-item');
+					mediaItems.forEach(item => {
+						const deleteButton = item.querySelector('.btn-delete-media');
+						if(deleteButton && deleteButton.getAttribute('data-file-id') === fileId) {
+							item.remove();
+						}
+					});
+
+					// Update the banner if the deleted image was the banner
+					if(isBanner) {
+						updateBanner();
+					}
+
+					// Close the modal
+					bootstrap.Modal.getInstance(document.getElementById('deleteMediaModal')).hide();
+				} else {
+					alert('Failed to delete media: ' + (data.error || 'Unknown error'));
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				alert('An error occurred while deleting the media.');
+			});
+		});
+	}
+}
+
+function updateBanner() {
+	const bannerImg = document.querySelector('.banner-image');
+	const defaultBannerSrc = bannerImg.getAttribute('data-default');
+
+	// Find the first available image in the media carousel
+	const imageItems = document.querySelectorAll('.media-item-image:not(.temp-media)');
+
+	if (imageItems.length > 0) {
+		// Get the first image from existing images
+		const firstImage = imageItems[0].querySelector('img');
+		if (firstImage && firstImage.src) {
+			bannerImg.src = firstImage.src;
+		} else {
+			bannerImg.src = defaultBannerSrc;
+		}
+	} else {
+		// No images left, use default
+		bannerImg.src = defaultBannerSrc;
+	}
+
+	// Remove action buttons from banner if using default
+	const bannerActions = document.querySelector('.banner .media-actions');
+	if (bannerActions) {
+		bannerActions.style.display = imageItems.length > 0 ? 'flex' : 'none';
 	}
 }
 
@@ -191,14 +302,6 @@ function addMediaToForm(type, content) {
 
 		document.getElementById('snowtrickForm').appendChild(fileInput);
 	}
-}
-
-function setupDeleteMediaButtons() {
-	document.querySelectorAll('.btn-delete-media').forEach(button => {
-		button.addEventListener('click', function() {
-			document.getElementById('deleteFileId').value = this.getAttribute('data-file-id');
-		});
-	});
 }
 
 function setupDeleteTrick() {

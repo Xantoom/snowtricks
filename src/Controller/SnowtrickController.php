@@ -125,24 +125,11 @@ class SnowtrickController extends AbstractController
 			return $b->getCreatedAt() <=> $a->getCreatedAt();
 		});
 
-		// Get oldest image for banner (reverse sort the images)
-		$imageFiles = array_filter($files, static function($file) {
-			return $file->getType() === 'image';
-		});
-
-		// Sort oldest to newest for banner selection
-		usort($imageFiles, static function($a, $b) {
-			return $a->getCreatedAt() <=> $b->getCreatedAt();
-		});
-
-		$bannerImage = !empty($imageFiles) ? $imageFiles[0] : null;
-
 		return $this->render('snowtrick/edit.html.twig', [
 			'snowtrick' => $snowtrick,
 			'form' => $form->createView(),
 			'defaultBannerImg' => $_ENV['DEFAULT_BANNER_IMAGE'],
 			'sortedFiles' => $files,
-			'bannerImage' => $bannerImage,
 		]);
 	}
 

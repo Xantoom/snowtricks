@@ -11,7 +11,7 @@
 	<div class="banner">
 		{% set bannerImage = snowtrick.firstImage %}
 
-		<img src="{{ bannerImage is not null ? asset('uploads/' ~ bannerImage.path) : defaultBannerImg }}" alt="Snowboard banner" class="banner-image">
+		<img src="{{ bannerImage is not null ? asset('uploads/' ~ bannerImage.path) : defaultBannerImg }}" alt="Snowboard banner" class="banner-image" data-default="{{ defaultBannerImg }}">
 		<div class="banner-overlay"></div>
 
 		<div class="position-absolute top-50 start-50 translate-middle text-center text-white">
@@ -21,9 +21,11 @@
 
 		{% if bannerImage is not null %}
 			<div class="media-actions">
-				<button type="button" class="btn btn-light btn-sm banner-edit-btn" data-bs-toggle="modal"
-				        data-bs-target="#editMediaModal" data-file-id="{{ bannerImage.id }}" data-file-type="image">
+				<button type="button" class="btn btn-edit-media" data-bs-toggle="modal" data-bs-target="#editMediaModal" data-file-id="{{ bannerImage.id }}" data-file-type="{{ bannerImage.type }}">
 					<i class="fas fa-edit text-success"></i>
+				</button>
+				<button type="button" class="btn btn-delete-media" data-bs-toggle="modal" data-bs-target="#deleteMediaModal" data-file-id="{{ bannerImage.id }}">
+					<i class="fas fa-trash text-danger"></i>
 				</button>
 			</div>
 		{% endif %}
@@ -77,19 +79,25 @@
 				<div class="mb-3">
 					{{ form_label(form.name, 'Title', {'label_attr': {'class': 'form-label fw-bold'}}) }}
 					{{ form_widget(form.name) }}
-					{{ form_errors(form.name) }}
+					<div class="text-danger">
+						{{ form_errors(form.name) }}
+					</div>
 				</div>
 
 				<div class="mb-3">
 					{{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label fw-bold'}}) }}
 					{{ form_widget(form.description) }}
-					{{ form_errors(form.description) }}
+					<div class="text-danger">
+						{{ form_errors(form.description) }}
+					</div>
 				</div>
 
 				<div class="mb-3">
 					{{ form_label(form.category, 'Category', {'label_attr': {'class': 'form-label fw-bold'}}) }}
 					{{ form_widget(form.category) }}
-					{{ form_errors(form.category) }}
+					<div class="text-danger">
+						{{ form_errors(form.category) }}
+					</div>
 				</div>
 			</div>
 		</div>
