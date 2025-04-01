@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0,maximum-scale=1.0" />
+	<!-- Title -->
+	<title>{% block title %}{% endblock %} - Snowtricks</title>
+
+	<!-- Favicon -->
+	<link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
+
+	<!-- Font Awesome -->
+	<script src="https://kit.fontawesome.com/b5fc961b5d.js" crossorigin="anonymous"></script>
+
+	<!-- CSS ADDITIONAL IMPORTS -->
+	{% block stylesheets %}{% endblock %}
+
+	<!-- JS IMPORTS -->
+	{% block importmap %}
+		{{ importmap('app') }}
+	{% endblock %}
+
+	<!-- JS ADDITIONAL IMPORTS -->
+	{% block javascripts %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+	<!-- Navbar -->
+	{% include 'layout/_navbar.html.twig' %}
+
+	<!-- Main content -->
+	<main class="flex-grow-1">
+		<div class="container-fluid">
+			<!-- display error message only if not on route '/' -->
+			{% if app.request.attributes.get('_route') != 'app_home' %}
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+							{{ message }}
+							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+					{% endfor %}
+				{% endfor %}
+			{% endif %}
+			{% block body %}{% endblock %}
+		</div>
+	</main>
+
+	<!-- Footer -->
+	{% include 'layout/_footer.html.twig' %}
+
+	<!-- Mobile Navbar -->
+	{% include 'layout/_mobile_navbar.html.twig' %}
+</body>
+</html>

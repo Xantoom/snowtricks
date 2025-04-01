@@ -1,0 +1,163 @@
+/* Banner styles */
+.banner {
+	position: relative;
+	height: 60vh;
+	min-height: 350px;
+	overflow: hidden;
+	margin-bottom: 2rem;
+}
+
+.banner-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: brightness(0.7);
+}
+
+.banner-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+}
+
+/* Media carousel */
+.media-container {
+	padding: 1rem 0;
+}
+
+.media-carousel {
+	display: flex;
+	overflow-x: auto;
+	gap: 1rem;
+	padding: 1rem 0;
+	scroll-behavior: smooth;
+}
+
+.media-item {
+	flex: 0 0 300px;
+	height: 200px;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	position: relative;
+}
+
+.media-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.media-type-badge {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	padding: 5px 10px;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+.media-actions {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	display: flex;
+	gap: 5px;
+}
+
+.media-actions .btn {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(255, 255, 255, 0.9);
+}
+
+.add-media-card {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(0, 0, 0, 0.05);
+	border: 2px dashed rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+}
+
+/* Override banner styles to match index page */
+.banner {
+	position: relative;
+	height: calc(100vh - 60px); /* Match index page - subtract navbar height */
+	min-height: 450px; /* Match index page minimum height */
+	overflow: hidden;
+	border-radius: 0;
+	margin-bottom: 0;
+}
+
+.banner-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: brightness(0.7);
+	transition: transform 0.3s ease-out; /* Add transition effect from index page */
+}
+
+/* Replace the current banner-edit-btn styles with this */
+.banner-edit-btn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 4px;
+	color: #333;
+	font-size: 0.9rem;
+	z-index: 10;
+	transition: background-color 0.2s ease;
+}
+
+.banner-edit-btn:hover {
+	background-color: #fff;
+	color: #007bff;
+}
+
+/* Replace the media-type-badge with border styling */
+.media-item {
+	flex: 0 0 300px;
+	height: 200px;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	position: relative;
+	border: 3px solid transparent;
+	transition: transform 0.2s ease;
+}
+
+/* Image items will have a blue border */
+.media-item.media-item-image {
+	border-color: #007bff; /* Bootstrap primary color */
+}
+
+/* Video items will have a red border */
+.media-item.media-item-video {
+	border-color: #dc3545; /* Bootstrap danger color */
+}
+
+/* Hover effect for media items */
+.media-item:hover {
+	transform: translateY(-5px);
+}
+
+/* Hide the original badges */
+.media-type-badge {
+	display: none;
+}

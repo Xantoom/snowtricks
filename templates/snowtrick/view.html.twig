@@ -1,0 +1,163 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block title %}{{ snowtrick.name }}{% endblock %}
+
+{% block javascripts %}
+	{{ importmap('snowtrick-view') }}
+	{{ importmap('load-more-comments') }}
+{% endblock %}
+
+{% block body %}
+	<!-- Banner Section -->
+	<div class="banner">
+		<img src="{{ snowtrick.firstImage is not null ? asset('uploads/' ~ snowtrick.firstImage.path) : defaultBannerImg }}" alt="{{ snowtrick.name }}" class="banner-image">
+		<div class="banner-overlay"></div>
+
+		<div class="position-absolute top-50 start-50 translate-middle text-center text-white">
+			<h1 class="banner-title mb-0">{{ snowtrick.name }}</h1>
+		</div>
+
+		{% if app.user %}
+			<div class="position-absolute top-0 end-0 p-3">
+				<a href="{{ path('app_snowtrick_edit', {'slug': snowtrick.slug}) }}" class="btn btn-primary btn-lg rounded-circle me-2">
+					<i class="fas fa-edit"></i>
+				</a>
+				<button class="btn btn-danger btn-lg rounded-circle btn-delete-trick" data-trick-id="{{ snowtrick.id }}">
+					<i class="fas fa-trash"></i>
+				</button>
+			</div>
+		{% endif %}
+	</div>
+
+	<!-- Media Section -->
+	<div class="container mb-5">
+		<div class="d-md-none mb-3">
+			<button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse"
+			        data-bs-target="#mediaCollapse" aria-expanded="false">
+				<i class="fas fa-images me-2"></i> Show Media
+			</button>
+		</div>
+
+		<div class="collapse d-md-block" id="mediaCollapse">
+			<div class="media-container">
+				<h3 class="mb-3"><i class="fas fa-photo-video me-2"></i>Media Gallery</h3>
+
+				{% if snowtrick.files|length > 0 %}
+					<div class="media-carousel">
+						{% for file in snowtrick.files %}
+							<div class="media-item">
+								{% if file.type == 'image' %}
+									<img src="{{ asset('uploads/' ~ file.path) }}" alt="Trick media" class="img-fluid">
+								{% elseif file.type == 'video' %}
+									<div class="ratio ratio-16x9 h-100">
+										<iframe src="{{ file.path }}" allowfullscreen></iframe>
+									</div>
+								{% endif %}
+							</div>
+						{% endfor %}
+					</div>
+				{% else %}
+					<div class="alert alert-light text-center">
+						<i class="fas fa-image fa-2x mb-3 text-muted"></i>
+						<p class="mb-0">No media available for this trick</p>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Description Section -->
+	<div class="container mb-5">
+		<div class="card shadow-sm">
+			<div class="card-body">
+				<h3 class="card-title mb-4">Description</h3>
+				<div class="trick-description mb-4">
+					{{ snowtrick.description|nl2br }}
+				</div>
+
+				<hr class="my-4">
+
+				<div class="row g-3 text-muted">
+					<div class="col-md-4 col-6">
+						<i class="fas fa-calendar-alt me-2"></i>Created:
+						<span class="fw-medium">{{ snowtrick.createdAt|date('d M Y H:i') }}</span>
+					</div>
+					<div class="col-md-4 col-6">
+						<i class="fas fa-user me-2"></i>By:
+						<span class="fw-medium">{{ snowtrick.createdBy ? snowtrick.createdBy : 'Unknown' }}</span>
+					</div>
+					{% if snowtrick.updatedAt %}
+						<div class="col-md-4 col-12">
+							<i class="fas fa-clock me-2"></i>Last update:
+							<span class="fw-medium">{{ snowtrick.updatedAt|date('d M Y H:i') }}</span>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Comments Section -->
+	<div class="container mb-5">
+		<h3 class="mb-4"><i class="fas fa-comments me-2"></i>Comments</h3>
+
+		{% if app.user %}
+			<!-- Comment Form -->
+			<div class="card shadow-sm mb-4">
+				<div class="card-body">
+					<form action="{{ path('app_comment_create', {'slug': snowtrick.slug}) }}" method="post">
+						<div class="mb-3">
+							<textarea class="form-control" name="content" rows="3" placeholder="Write your comment here..." required></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary float-end">
+							<i class="fas fa-paper-plane me-2"></i>Post Comment
+						</button>
+					</form>
+				</div>
+			</div>
+		{% endif %}
+
+		<hr class="my-4">
+
+		<!-- Comments List -->
+		<div class="comments-container">
+			{% if snowtrick.comments|length > 0 %}
+				{% for comment in snowtrick.comments|slice(0, 10) %}
+					<div class="comment-card card shadow-sm mb-3">
+						<div class="card-body">
+							<div class="d-flex">
+								<div class="comment-avatar bg-light rounded-circle me-3 d-flex justify-content-center align-items-center">
+									<i class="fas fa-user text-secondary"></i>
+								</div>
+								<div class="w-100">
+									<div class="d-flex justify-content-between align-items-center">
+										<h6 class="mb-0 fw-bold">{{ comment.createdBy.email }}</h6>
+										<span class="text-muted small">{{ comment.createdAt|date('d M Y H:i') }}</span>
+									</div>
+									<p class="mt-2 mb-0">{{ comment.content }}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="text-center py-4">
+					<i class="fas fa-comments fa-3x text-muted mb-3"></i>
+					<p>No comments yet. Be the first to share your thoughts!</p>
+				</div>
+			{% endif %}
+		</div>
+
+		{% if snowtrick.comments|length > 10 %}
+			<div class="text-center mt-4">
+				<button id="loadMoreComments" class="btn btn-outline-primary px-4"
+				        data-page="2" data-trick-id="{{ snowtrick.id }}">
+					<i class="fas fa-spinner me-2"></i>Load More Comments
+				</button>
+			</div>
+		{% endif %}
+	</div>
+
+	<!-- Delete Confirmation Modal -->
+	{{ include('home/_modal_delete_trick.html.twig') }}
+{% endblock %}

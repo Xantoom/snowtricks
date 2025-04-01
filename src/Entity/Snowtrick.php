@@ -2,13 +2,16 @@
 
 namespace App\Entity;
 
+use App\Enum\SnowtrickCategories;
 use App\Repository\SnowtrickRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: SnowtrickRepository::class)]
+#[UniqueEntity(fields: ['name'], message: 'There is already a snowtrick with this name')]
 class Snowtrick
 {
     #[ORM\Id]
@@ -34,17 +37,21 @@ class Snowtrick
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick')]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'snowtrick', cascade: ['remove'])]
     private Collection $comments;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $video = null;
-
     /**
-     * @var Collection<int, Image>
+     * @var Collection<int, File>
      */
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'snowtrick')]
-    private Collection $images;
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'snowtrick', cascade: ['remove'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $files;
+
+    #[ORM\Column(type: 'string', length: 255, enumType: SnowtrickCategories::class)]
+    private ?SnowtrickCategories $category = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
 
 	public function __toString(): string
 	{
@@ -55,7 +62,7 @@ class Snowtrick
     {
         $this->comments = new ArrayCollection();
 		$this->createdAt = new \DateTimeImmutable();
-        $this->images = new ArrayCollection();
+        $this->files = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,45 +160,66 @@ class Snowtrick
         return $this;
     }
 
-    public function getVideo(): ?string
-    {
-        return $this->video;
-    }
-
-    public function setVideo(?string $video): static
-    {
-        $this->video = $video;
-
-        return $this;
-    }
-
     /**
-     * @return Collection<int, Image>
+     * @return Collection<int, File>
      */
-    public function getImages(): Collection
+    public function getFiles(): Collection
     {
-        return $this->images;
+        return $this->files;
     }
 
-    public function addImage(Image $image): static
+    public function addFile(File $file): static
     {
-        if (!$this->images->contains($image)) {
-            $this->images->add($image);
-            $image->setSnowtrick($this);
+        if (!$this->files->contains($file)) {
+            $this->files->add($file);
+            $file->setSnowtrick($this);
         }
 
         return $this;
     }
 
-    public function removeImage(Image $image): static
+    public function removeFile(File $file): static
     {
-        if ($this->images->removeElement($image)) {
+        if ($this->files->removeElement($file)) {
             // set the owning side to null (unless already changed)
-            if ($image->getSnowtrick() === $this) {
-                $image->setSnowtrick(null);
+            if ($file->getSnowtrick() === $this) {
+                $file->setSnowtrick(null);
             }
         }
 
         return $this;
     }
+
+    public function getCategory(): ?SnowtrickCategories
+    {
+        return $this->category;
+    }
+
+    public function setCategory(SnowtrickCategories $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+	public function getFirstImage(): ?File
+	{
+		$files = $this->files->filter(function (File $file) {
+			return $file->getType() === 'image';
+		});
+
+		return $files->isEmpty() ? null : $files->first();
+	}
 }

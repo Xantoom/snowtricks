@@ -89,4 +89,7 @@ load-fixtures: ## Load the database with fixtures
 drop-db: ## Drop the database
 	@$(SYMFONY) doctrine:database:drop --force
 
-reset-db: drop-db load-db load-fixtures ## Drop the database, load migrations and load fixtures
+delete-uploads: ## Delete all the uploads except the .gitignore file
+	@find public/uploads -type f ! -name '.gitignore' -delete
+
+reset-db: drop-db delete-uploads load-db load-fixtures ## Drop the database, delete the uploads, load migrations and load fixtures

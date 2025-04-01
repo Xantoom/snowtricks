@@ -16,14 +16,34 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
-    'bootstrap' => [
-        'version' => '5.3.3',
-    ],
-    '@popperjs/core' => [
-        'version' => '2.11.8',
-    ],
-    'bootstrap/dist/css/bootstrap.min.css' => [
-        'version' => '5.3.3',
-        'type' => 'css',
-    ],
+	'bootstrap' => [
+		'version' => '5.3.3',
+	],
+	'@popperjs/core' => [
+		'version' => '2.11.8',
+	],
+	'bootstrap/dist/css/bootstrap.min.css' => [
+		'version' => '5.3.3',
+		'type' => 'css',
+	],
+	'load-more' => [
+		'path' => './assets/js/load-more.js',
+		'entrypoint' => true,
+	],
+	'load-more-comments' => [
+		'path' => './assets/js/load-more-comments.js',
+		'entrypoint' => true,
+	],
+	'home' => [
+		'path' => './assets/js/pages/home.js',
+		'entrypoint' => true,
+	],
+	'snowtrick-view' => [
+		'path' => './assets/js/pages/snowtrick-view.js',
+		'entrypoint' => true,
+	],
+	'snowtrick-form' => [
+		'path' => './assets/js/pages/snowtrick-form.js',
+		'entrypoint' => true,
+	],
 ];

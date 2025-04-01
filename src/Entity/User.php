@@ -6,12 +6,14 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -53,10 +55,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     /**
-     * @var Collection<int, Image>
+     * @var Collection<int, File>
      */
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'uploadedBy')]
-    private Collection $images;
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'createdBy')]
+    private Collection $uploadedFiles;
+
+    /**
+     * @var Collection<int, File>
+     */
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'editedBy')]
+    private Collection $editedFiles;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isVerified = false;
 
 	public function __toString(): string
 	{
@@ -67,7 +78,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->comments = new ArrayCollection();
         $this->snowtricks = new ArrayCollection();
-        $this->images = new ArrayCollection();
+        $this->uploadedFiles = new ArrayCollection();
+        $this->editedFiles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -230,31 +242,73 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Image>
+     * @return Collection<int, File>
      */
-    public function getImages(): Collection
+    public function getUploadedFiles(): Collection
     {
-        return $this->images;
+        return $this->uploadedFiles;
     }
 
-    public function addImage(Image $image): static
+    public function addUploadedFile(File $uploadedFile): static
     {
-        if (!$this->images->contains($image)) {
-            $this->images->add($image);
-            $image->setUploadedBy($this);
+        if (!$this->uploadedFiles->contains($uploadedFile)) {
+            $this->uploadedFiles->add($uploadedFile);
+            $uploadedFile->setCreatedBy($this);
         }
 
         return $this;
     }
 
-    public function removeImage(Image $image): static
+    public function removeUploadedFile(File $uploadedFile): static
     {
-        if ($this->images->removeElement($image)) {
+        if ($this->uploadedFiles->removeElement($uploadedFile)) {
             // set the owning side to null (unless already changed)
-            if ($image->getUploadedBy() === $this) {
-                $image->setUploadedBy(null);
+            if ($uploadedFile->getCreatedBy() === $this) {
+                $uploadedFile->setCreatedBy(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, File>
+     */
+    public function getEditedFiles(): Collection
+    {
+        return $this->editedFiles;
+    }
+
+    public function addEditedFile(File $editedFile): static
+    {
+        if (!$this->editedFiles->contains($editedFile)) {
+            $this->editedFiles->add($editedFile);
+            $editedFile->setEditedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEditedFile(File $editedFile): static
+    {
+        if ($this->editedFiles->removeElement($editedFile)) {
+            // set the owning side to null (unless already changed)
+            if ($editedFile->getEditedBy() === $this) {
+                $editedFile->setEditedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }

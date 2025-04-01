@@ -1,0 +1,132 @@
+{% extends 'layout/base.html.twig' %}
+
+{% block javascripts %}
+	{{ importmap('snowtrick-form') }}
+{% endblock %}
+
+{% block title %}Edit {{ snowtrick.name }}{% endblock %}
+
+{% block body %}
+	<!-- Banner Section -->
+	<div class="banner">
+		{% set bannerImage = snowtrick.firstImage %}
+
+		<img src="{{ bannerImage is not null ? asset('uploads/' ~ bannerImage.path) : defaultBannerImg }}" alt="Snowboard banner" class="banner-image" data-default="{{ defaultBannerImg }}">
+		<div class="banner-overlay"></div>
+
+		<div class="position-absolute top-50 start-50 translate-middle text-center text-white">
+			<h1 class="banner-text mb-3">{{ snowtrick.name }}</h1>
+			<p class="banner-subtext">{{ snowtrick.category.value }}</p>
+		</div>
+
+		{% if bannerImage is not null %}
+			<div class="media-actions">
+				<button type="button" class="btn btn-edit-media" data-bs-toggle="modal" data-bs-target="#editMediaModal" data-file-id="{{ bannerImage.id }}" data-file-type="{{ bannerImage.type }}">
+					<i class="fas fa-edit text-success"></i>
+				</button>
+				<button type="button" class="btn btn-delete-media" data-bs-toggle="modal" data-bs-target="#deleteMediaModal" data-file-id="{{ bannerImage.id }}">
+					<i class="fas fa-trash text-danger"></i>
+				</button>
+			</div>
+		{% endif %}
+	</div>
+
+	<div class="container mb-5">
+		{{ form_start(form, {'attr': {'id': 'snowtrickForm', 'enctype': 'multipart/form-data'}}) }}
+
+		<!-- Media Section -->
+		<div class="media-container mb-4">
+			<h3 class="mb-3"><i class="fas fa-photo-video me-2"></i>Media Gallery</h3>
+
+			<!-- Media collection -->
+			<div class="media-carousel">
+				<!-- Add new media card -->
+				<div class="media-item add-media-card js-media-add">
+					<div class="text-center">
+						<i class="fas fa-plus fa-2x mb-2 text-secondary"></i>
+						<p class="mb-0 text-secondary">Add Media</p>
+					</div>
+				</div>
+
+				<!-- Existing media items display (sorted from newest to oldest) -->
+				{% for file in sortedFiles %}
+					<div class="media-item {% if file.type == 'image' %}media-item-image{% elseif file.type == 'video' %}media-item-video{% endif %}">
+						{% if file.type == 'image' %}
+							<img src="{{ asset('uploads/' ~ file.path) }}" alt="Trick media" class="img-fluid">
+						{% elseif file.type == 'video' %}
+							<div class="ratio ratio-16x9 h-100">
+								<iframe src="{{ file.path }}" allowfullscreen></iframe>
+							</div>
+						{% endif %}
+						<div class="media-actions">
+							<button type="button" class="btn btn-edit-media" data-bs-toggle="modal" data-bs-target="#editMediaModal"
+							        data-file-id="{{ file.id }}" data-file-type="{{ file.type }}"
+							        {% if file.type == 'video' %}data-video-url="{{ file.path }}"{% endif %}>
+								<i class="fas fa-edit text-success"></i>
+							</button>
+							<button type="button" class="btn btn-delete-media" data-bs-toggle="modal" data-bs-target="#deleteMediaModal" data-file-id="{{ file.id }}">
+								<i class="fas fa-trash text-danger"></i>
+							</button>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- Trick Details Section -->
+		<div class="card shadow-sm mb-4">
+			<div class="card-body">
+				<div class="mb-3">
+					{{ form_label(form.name, 'Title', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.name) }}
+					<div class="text-danger">
+						{{ form_errors(form.name) }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.description) }}
+					<div class="text-danger">
+						{{ form_errors(form.description) }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(form.category, 'Category', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.category) }}
+					<div class="text-danger">
+						{{ form_errors(form.category) }}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="d-flex justify-content-end gap-2">
+			<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTrickModal">
+				<i class="fas fa-trash me-2"></i>Delete Trick
+			</button>
+			<button type="submit" class="btn btn-primary">
+				<i class="fas fa-save me-2"></i>Save Changes
+			</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+
+	<!-- Edit Media Modal -->
+	{{ include('snowtrick/modals/edit_media_modal.html.twig', {'snowtrick': snowtrick}) }}
+
+	<!-- Add Media Modal -->
+	{{ include('snowtrick/modals/add_media_modal.html.twig') }}
+
+	<!-- Delete Media Modal -->
+	{{ include('snowtrick/modals/delete_media_modal.html.twig') }}
+
+	<!-- Delete Banner Modal -->
+	{{ include('snowtrick/modals/delete_banner_modal.html.twig') }}
+
+	<!-- Delete Trick Modal -->
+	{{ include('snowtrick/modals/delete_trick_modal.html.twig', {'snowtrick': snowtrick}) }}
+{% endblock %}

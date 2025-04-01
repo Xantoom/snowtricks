@@ -1,0 +1,191 @@
+/* Adjust banner height to account for navbar */
+.banner {
+	position: relative;
+	height: calc(100vh - 60px); /* Subtract navbar height */
+	min-height: 450px; /* Ensure minimum height on small screens */
+	overflow: hidden;
+	border-radius: 0;
+	margin-bottom: 0;
+}
+
+.banner-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: brightness(0.7);
+	transition: transform 0.3s ease-out;
+}
+
+.banner-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6));
+}
+
+/* Move scroll button higher up for better visibility */
+.scroll-down-btn {
+	position: absolute;
+	bottom: 80px;
+	right: 30px;
+	width: 60px;
+	height: 60px;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #333;
+	font-size: 1.5rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease;
+	z-index: 10;
+	text-decoration: none;
+	animation: bounce 2s infinite;
+}
+
+/* Add bounce animation to draw attention to the button */
+@keyframes bounce {
+	0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+	40% { transform: translateY(-10px); }
+	60% { transform: translateY(-5px); }
+}
+
+.scroll-down-btn:hover {
+	background-color: #fff;
+	color: #007bff;
+	animation: none;
+	transform: translateY(-3px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.banner-subtext {
+	font-size: 1.5rem;
+	font-weight: 300;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.scroll-down-btn {
+	position: absolute;
+	bottom: 30px;
+	right: 30px;
+	width: 60px;
+	height: 60px;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #333;
+	font-size: 1.5rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease;
+	z-index: 10;
+	text-decoration: none;
+}
+
+.scroll-down-btn:hover {
+	background-color: #fff;
+	color: #007bff;
+	transform: translateY(-3px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.btn-load-more {
+	padding: 12px 30px;
+	font-weight: 600;
+	border-radius: 50px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s;
+}
+
+.btn-load-more:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-buttons .btn {
+	width: 38px;
+	height: 38px;
+	padding: 0;
+	line-height: 36px;
+	border-radius: 50%;
+	margin-left: 5px;
+}
+
+/* Fix for consistent card image sizing */
+.card-img-wrapper {
+	position: relative;
+	height: 200px; /* Fixed height for all image containers */
+	width: 100%;
+	overflow: hidden;
+}
+
+.card-img-top {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /* Maintain aspect ratio while filling container */
+}
+
+/* Ensure card body doesn't grow based on content */
+.trick-card {
+	display: flex;
+	flex-direction: column;
+}
+
+.trick-card .card-body {
+	flex: 0 0 auto; /* Don't grow or shrink */
+}
+
+.trick-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Scroll to top button */
+.scroll-top-btn {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	width: 60px;
+	height: 60px;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #333;
+	font-size: 1.5rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease;
+	z-index: 1000;
+	text-decoration: none;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.scroll-top-btn.visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.scroll-top-btn:hover {
+	background-color: #fff;
+	color: #007bff;
+	transform: translateY(-3px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Adjust scroll-to-top button position on mobile */
+@media (max-width: 767.98px) {
+	.scroll-top-btn {
+		bottom: 90px; /* Move higher on mobile to avoid navbar */
+		right: 20px;
+		width: 50px;
+		height: 50px;
+	}
+}
+
+
