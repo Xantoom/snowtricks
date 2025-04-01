@@ -73,7 +73,7 @@ class ResetPasswordController extends AbstractController
     /**
      * Validates and process the reset URL that the user clicked in their email.
      */
-    #[Route('/reset/{token}', name: '')]
+    #[Route('/reset/{token}', name: 'reset')]
     public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, ?string $token = null): Response
     {
         if ($token) {
@@ -81,7 +81,7 @@ class ResetPasswordController extends AbstractController
             // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
             $this->storeTokenInSession($token);
 
-            return $this->redirectToRoute('app_reset_password');
+            return $this->redirectToRoute('app_reset_password_reset');
         }
 
         $token = $this->getTokenFromSession();
@@ -100,7 +100,7 @@ class ResetPasswordController extends AbstractController
                 $e->getReason()
             ));
 
-            return $this->redirectToRoute('app_forgot_password_request');
+            return $this->redirectToRoute('app_reset_password_request');
         }
 
         // The token is valid; allow the user to change their password.
@@ -121,6 +121,8 @@ class ResetPasswordController extends AbstractController
             // The session is cleaned up after the password has been changed.
             $this->cleanSessionAfterReset();
 
+			$this->addFlash('success', 'Your password has been reset successfully. You can now log in.');
+
             return $this->redirectToRoute('app_home');
         }
 
@@ -140,7 +142,7 @@ class ResetPasswordController extends AbstractController
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {
-            return $this->redirectToRoute('app_check_email');
+            return $this->redirectToRoute('app_reset_password_check_email');
         }
 
         try {
@@ -156,7 +158,7 @@ class ResetPasswordController extends AbstractController
             //     $e->getReason()
             // ));
 
-            return $this->redirectToRoute('app_check_email');
+            return $this->redirectToRoute('app_reset_password_check_email');
         }
 
         $email = (new TemplatedEmail())
@@ -174,6 +176,6 @@ class ResetPasswordController extends AbstractController
         // Store the token object in session for retrieval in check-email route.
         $this->setTokenObjectInSession($resetToken);
 
-        return $this->redirectToRoute('app_check_email');
+        return $this->redirectToRoute('app_reset_password_check_email');
     }
 }

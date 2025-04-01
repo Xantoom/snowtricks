@@ -46,6 +46,31 @@
                     {% endfor %}
 
                     {{ form_start(registrationForm) }}
+	                <div class="form-floating">
+		                {{ form_widget(registrationForm.firstname, {
+			                'attr': {
+				                'class': 'form-control',
+				                'placeholder': 'First name'
+			                }
+		                }) }}
+		                <label for="{{ registrationForm.firstname.vars.id }}">
+			                <i class="fas fa-user me-2"></i>First name
+		                </label>
+		                {{ form_errors(registrationForm.firstname) }}
+	                </div>
+
+	                <div class="form-floating">
+		                {{ form_widget(registrationForm.lastname, {
+			                'attr': {
+				                'class': 'form-control',
+				                'placeholder': 'Last name'
+			                }
+		                }) }}
+		                <label for="{{ registrationForm.lastname.vars.id }}">
+			                <i class="fas fa-user me-2"></i>Last name
+		                </label>
+		                {{ form_errors(registrationForm.lastname) }}
+	                </div>
                     <div class="form-floating">
                         {{ form_widget(registrationForm.email, {
                             'attr': {
