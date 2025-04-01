@@ -1,7 +1,7 @@
 {% extends 'layout/base.html.twig' %}
 
 {% block javascripts %}
-	{{ importmap('snowtrick-create') }}
+	{{ importmap('snowtrick-form') }}
 {% endblock %}
 
 {% block title %}Create New Snowtrick{% endblock %}
@@ -9,59 +9,112 @@
 {% block body %}
 	<!-- Banner Section -->
 	<div class="banner">
-		<img src="{{ defaultBannerImg }}" alt="Snowboard banner" class="banner-image">
+		<img src="{{ defaultBannerImg }}" alt="Snowboard banner" class="banner-image" data-default="{{ defaultBannerImg }}">
 		<div class="banner-overlay"></div>
 
-		<!-- Add centered title like on index page -->
 		<div class="position-absolute top-50 start-50 translate-middle text-center text-white">
 			<h1 class="banner-text mb-3">Create New Snowtrick</h1>
 		</div>
 	</div>
 
-	<form id="snowtrickForm" action="{{ path('app_snowtrick_create') }}" method="post" enctype="multipart/form-data">
-		<div class="container mb-5">
-			<!-- Media Section - Initially empty -->
-			<div class="media-container mb-4">
-				<h3 class="mb-3"><i class="fas fa-photo-video me-2"></i>Media Gallery</h3>
-				<p class="text-muted">You can add media after creating your trick.</p>
-			</div>
+	<div class="container mb-5">
+		{{ form_start(form, {'attr': {'id': 'snowtrickForm', 'enctype': 'multipart/form-data'}}) }}
 
-			<!-- Trick Details Section -->
-			<div class="card shadow-sm mb-4">
-				<div class="card-body">
-					<div class="mb-3">
-						<label for="trickTitle" class="form-label fw-bold">Title</label>
-						<input type="text" class="form-control form-control-lg" id="trickTitle" name="title" required>
-					</div>
+		<!-- Media Section -->
+		<div class="media-container mb-4">
+			<h3 class="mb-3"><i class="fas fa-photo-video me-2"></i>Media Gallery</h3>
 
-					<div class="mb-3">
-						<label for="trickDescription" class="form-label fw-bold">Description</label>
-						<textarea class="form-control" id="trickDescription" name="description" rows="6" required></textarea>
-					</div>
-
-					<div class="mb-3">
-						<label for="trickCategory" class="form-label fw-bold">Category</label>
-						<select class="form-select" id="trickCategory" name="category" required>
-							<option value="" selected disabled>Select a category</option>
-							{% for category in categories %}
-								<option value="{{ category.value }}">
-									{{ category.value }}
-								</option>
-							{% endfor %}
-						</select>
+			<!-- Media collection -->
+			<div class="media-carousel">
+				<!-- Add new media card -->
+				<div class="media-item add-media-card js-media-add">
+					<div class="text-center">
+						<i class="fas fa-plus fa-2x mb-2 text-secondary"></i>
+						<p class="mb-0 text-secondary">Add Media</p>
 					</div>
 				</div>
 			</div>
+		</div>
 
-			<!-- Action Buttons -->
-			<div class="d-flex justify-content-end gap-2">
-				<a href="{{ path('app_home') }}" class="btn btn-secondary">
-					<i class="fas fa-times me-2"></i>Cancel
-				</a>
-				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-save me-2"></i>Create Trick
-				</button>
+		<!-- Trick Details Section -->
+		<div class="card shadow-sm mb-4">
+			<div class="card-body">
+				<div class="mb-3">
+					{{ form_label(form.name, 'Title', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.name) }}
+					<div class="text-danger">
+						{{ form_errors(form.name) }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.description) }}
+					<div class="text-danger">
+						{{ form_errors(form.description) }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(form.category, 'Category', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+					{{ form_widget(form.category) }}
+					<div class="text-danger">
+						{{ form_errors(form.category) }}
+					</div>
+				</div>
 			</div>
 		</div>
-	</form>
+
+		<!-- Action Buttons -->
+		<div class="d-flex justify-content-end gap-2">
+			<a href="{{ path('app_home') }}" class="btn btn-secondary">
+				<i class="fas fa-times me-2"></i>Cancel
+			</a>
+			<button type="submit" class="btn btn-primary">
+				<i class="fas fa-save me-2"></i>Create Trick
+			</button>
+		</div>
+
+		{{ form_end(form) }}
+	</div>
+
+	<!-- Add Media Modal -->
+	<div class="modal fade" id="addMediaModal" tabindex="-1" aria-labelledby="addMediaModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addMediaModalLabel">Add Media</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label for="mediaType" class="form-label">Media Type</label>
+						<select class="form-select" id="mediaType">
+							<option value="image" selected>Image</option>
+							<option value="video">Video</option>
+						</select>
+					</div>
+
+					<div id="imageUploadForm">
+						<div class="mb-3">
+							<label for="newImageFile" class="form-label">Upload Image</label>
+							<input type="file" class="form-control" id="newImageFile" accept="image/*">
+						</div>
+					</div>
+
+					<div id="videoUrlForm" style="display: none;">
+						<div class="mb-3">
+							<label for="newVideoUrl" class="form-label">Video URL</label>
+							<input type="text" class="form-control" id="newVideoUrl" placeholder="https://www.youtube.com/embed/...">
+							<small class="form-text text-muted">Use embed URLs (e.g., https://www.youtube.com/embed/VIDEO_ID)</small>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="confirmAddMedia">Add Media</button>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}

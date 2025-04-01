@@ -49,40 +49,42 @@ class SnowtrickController extends AbstractController
 	{
 		// Check if user has permission to create
 		$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+		$user = $this->getUser();
 
-		// Handle form submission
-		if ($request->isMethod('POST')) {
-			$title = $request->request->get('title');
-			$description = $request->request->get('description');
-			$category = $request->request->get('category');
+		$snowtrick = new Snowtrick();
+		$form = $this->createForm(SnowtrickType::class, $snowtrick);
+		$form->handleRequest($request);
 
-			// Validate inputs
-			if (empty($title) || empty($description) || empty($category)) {
-				$this->addFlash('danger', 'All fields are required.');
-			} else {
-				// Create new snowtrick
-				$snowtrick = new Snowtrick();
-				$snowtrick
-					->setName($title)
-					->setDescription($description)
-					->setCategory(SnowtrickCategories::from($category))
-					->setCreatedAt(new \DateTimeImmutable())
-					->setCreatedBy($this->getUser())
-				;
+		if ($form->isSubmitted() && $form->isValid()) {
+			// Set creation metadata
+			$snowtrick->setCreatedAt(new \DateTimeImmutable());
+			$snowtrick->setCreatedBy($user);
 
-				// Generate slug from title
-				$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-				$snowtrick->setSlug($slug);
+			// Generate slug from title
+			$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $snowtrick->getName())));
+			$snowtrick->setSlug($slug);
 
-				// Save to database
-				$this->snowtrickRepository->save($snowtrick);
+			// Save to database first to get ID
+			$this->snowtrickRepository->save($snowtrick);
 
-				$this->addFlash('success', 'Snowtrick created successfully.');
-				return $this->redirectToRoute('app_snowtrick_show', ['slug' => $snowtrick->getSlug()]);
-			}
+			// Process new media items
+			$this->processNewMediaItems($request, $snowtrick, $user);
+
+			$this->addFlash('success', 'Snowtrick created successfully.');
+			return $this->redirectToRoute('app_snowtrick_show', ['slug' => $snowtrick->getSlug()]);
+		}
+
+		if ($form->isSubmitted()) {
+			$this->addFlash('danger', 'Errors: ' . implode(', ', $form->getErrors(true, false)));
+			return $this->render('snowtrick/create.html.twig', [
+				'form' => $form->createView(),
+				'defaultBannerImg' => $_ENV['DEFAULT_BANNER_IMAGE'],
+				'categories' => SnowtrickCategories::cases(),
+			]);
 		}
 
 		return $this->render('snowtrick/create.html.twig', [
+			'form' => $form->createView(),
 			'defaultBannerImg' => $_ENV['DEFAULT_BANNER_IMAGE'],
 			'categories' => SnowtrickCategories::cases(),
 		]);
