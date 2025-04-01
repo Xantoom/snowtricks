@@ -121,6 +121,8 @@ Docker et Make sont nécessaires pour lancer l'environnement de développement.
 - Pour mettre à jour la base de données :\
   ```php bin/console doctrine:schema:update --force```
 
+Un Makefile est disponible dans le projet où toutes les commandes et leurs raccourcis sont disponibles.
+
 ---
 
 ## Arrêt
