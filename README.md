@@ -2,7 +2,7 @@
 
 > Snowtricks est un projet de formation de la formation Développeur PHP Symfony d'OpenClassrooms. Il s'agit d'un blog de figure de snowboard.
 
-Étape du projet : 10%
+Étape du projet : 100% - soutenance à passer
 
 ---
 
